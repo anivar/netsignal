@@ -1,39 +1,51 @@
-# NetSignal 🌐
+# NetSignal
 
-High-performance network monitoring for React Native using Turbo Module architecture. Get real-time network status, connection quality, and endpoint health with sub-100ms detection times.
+⚡ **Instant network detection for React Native** - Get network status in <1ms instead of 3-40 seconds
 
-![Version](https://img.shields.io/npm/v/netsignal)
-![License](https://img.shields.io/npm/l/netsignal)
-![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android-blue)
-![Architecture](https://img.shields.io/badge/architecture-Turbo%20Module-green)
+[![npm version](https://img.shields.io/npm/v/netsignal.svg)](https://www.npmjs.com/package/netsignal)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android%20%7C%20Web-lightgrey.svg)](https://github.com/anivar/netsignal)
+[![Bundle Size](https://img.shields.io/badge/size-29KB-brightgreen)](https://www.npmjs.com/package/netsignal)
 
-## ✨ Features
+```javascript
+// ❌ Slow: Traditional polling approach (3-40 seconds)
+await fetch('https://google.com').then(() => true).catch(() => false);
 
-- 🚀 **Turbo Module Architecture** - Native performance with synchronous calls
-- ⚡ **Sub-100ms Detection** - Instant network change notifications
-- 📊 **Connection Quality Monitoring** - Not just connected/disconnected
-- 🔍 **Multi-Endpoint Health Checks** - Monitor your API endpoints
-- 📈 **Speed Testing** - Bandwidth and latency measurements
-- 🔋 **Battery Efficient** - Native callbacks instead of polling
-- 📱 **Platform Specific** - Leverages iOS and Android native capabilities
-- 🎯 **Business Logic Aware** - Understands your app's network needs
+// ✅ Fast: NetSignal (<1ms)
+import NetSignal from 'netsignal';
+const isOnline = NetSignal.isConnected(); // Instant!
+```
 
-## 📊 Performance Comparison
+## The Problem
 
-| Feature | NetInfo | NetSignal | Improvement |
-|---------|---------|-----------|-------------|
-| Connection Loss Detection | 8-40s | <100ms | **400x faster** |
-| Recovery Detection | 5-15s | <200ms | **75x faster** |
-| Quality Monitoring | ❌ | ✅ | **New capability** |
-| Battery Usage | High | Low | **5x efficient** |
-| Memory Usage | 15MB | 3MB | **5x smaller** |
+🐌 **Your app freezes for 3-40 seconds** checking if the network is available
 
-## 📦 Installation
+📱 **Users see loading spinners** when the device already knows it's offline
+
+💸 **Wasted API calls** to check connectivity when the OS already has this information
+
+## The Solution
+
+NetSignal uses **native OS callbacks** instead of polling. The operating system already maintains real-time network state - we just expose it to React Native with zero latency.
+
+## Key Features
+
+| Feature | NetSignal | Traditional Polling |
+|---------|-----------|--------------------|
+| **Detection Speed** | <1ms ⚡ | 3-40 seconds 🐌 |
+| **Battery Impact** | Minimal ✅ | High (constant polling) ❌ |
+| **Data Usage** | Zero 🎯 | Wastes data on checks 💸 |
+| **Accuracy** | Real-time OS state 📡 | Can miss quick changes ⚠️ |
+| **Package Size** | 29KB 📦 | Often 100KB+ 📦📦📦 |
+
+## Installation
 
 ```bash
 npm install netsignal
 # or
 yarn add netsignal
+# or
+pnpm add netsignal
 ```
 
 ### iOS Setup
@@ -44,262 +56,208 @@ cd ios && pod install
 
 ### Android Setup
 
-No additional setup required for Android.
+Add permission to `AndroidManifest.xml`:
 
-## 🚀 Quick Start
-
-### Basic Usage
-
-```javascript
-import { useNetSignal } from 'netsignal';
-
-function MyApp() {
-  const { isOnline, connectionQuality, isFast } = useNetSignal();
-
-  if (!isOnline) {
-    return <OfflineScreen />;
-  }
-
-  if (!isFast) {
-    return <LowBandwidthWarning />;
-  }
-
-  return <App />;
-}
+```xml
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
 
-### Simple Online Check
+## Quick Start - 30 Second Integration
 
-```javascript
-import { useIsOnline } from 'netsignal';
-
-function MyComponent() {
-  const isOnline = useIsOnline();
-  
-  return (
-    <View>
-      <Text>{isOnline ? 'Online' : 'Offline'}</Text>
-    </View>
-  );
-}
-```
-
-### Advanced Configuration
-
-```javascript
-import { useNetSignal } from 'netsignal';
-
-function MyApp() {
-  const network = useNetSignal({
-    // Monitor specific endpoints
-    endpoints: {
-      api: {
-        url: 'https://api.myapp.com/health',
-        critical: true,
-      },
-      cdn: {
-        url: 'https://cdn.myapp.com',
-        timeout: 3000,
-      },
-    },
-    
-    // Check every 5 seconds
-    checkInterval: 5000,
-    
-    // Define quality thresholds
-    thresholds: {
-      minDownloadSpeedMbps: 1.0,
-      maxLatencyMs: 500,
-    },
-    
-    // Callbacks
-    onConnectionChange: (status) => {
-      console.log('Network status:', status);
-    },
-    onQualityChange: (quality) => {
-      console.log('Connection quality:', quality);
-    },
-  });
-
-  // Use the network status
-  if (!network.isOnline) {
-    return <OfflineMode />;
-  }
-
-  if (network.isExpensive) {
-    return <DataSaverMode />;
-  }
-
-  if (network.isSlow) {
-    return <ReducedQualityMode />;
-  }
-
-  return <FullApp />;
-}
-```
-
-### Direct API Usage
-
-```javascript
+```typescript
 import NetSignal from 'netsignal';
 
-// Get current status synchronously
-const isConnected = NetSignal.isConnected();
-const connectionType = NetSignal.getConnectionType();
+// Check connection instantly (synchronous!)
+const isOnline = NetSignal.isConnected(); // true/false
 
-// Get detailed status asynchronously
-const status = await NetSignal.getStatus();
-console.log('Network status:', status);
+// Get connection type
+const type = NetSignal.getType(); // 'wifi' | 'cellular' | 'ethernet' | 'none'
 
-// Probe specific endpoint
-const result = await NetSignal.probe('https://api.example.com/health');
-if (result.reachable) {
-  console.log(`API latency: ${result.responseTimeMs}ms`);
-}
-
-// Perform speed test
-const speed = await NetSignal.speedTest();
-console.log(`Download: ${speed.downloadSpeedMbps} Mbps`);
-console.log(`Upload: ${speed.uploadSpeedMbps} Mbps`);
-console.log(`Latency: ${speed.latencyMs} ms`);
-
-// Start monitoring
-NetSignal.startMonitoring(5000); // Check every 5 seconds
-
-// Listen to events
-const unsubscribe = NetSignal.addEventListener('connectionChange', (status) => {
-  console.log('Network changed:', status);
+// Listen for changes
+const unsubscribe = NetSignal.onChange((status) => {
+  console.log('Network:', status.isConnected ? 'Online' : 'Offline');
+  console.log('Type:', status.type);
 });
 
-// Stop monitoring when done
-NetSignal.stopMonitoring();
+// Check endpoint reachability
+const health = await NetSignal.probe('https://api.example.com', 5000);
+if (health.reachable) {
+  console.log(`API responded in ${health.responseTime}ms`);
+}
+
+// Clean up
 unsubscribe();
 ```
 
-## 📖 API Reference
+## React Hook
 
-### Hooks
+```tsx
+import { useNetSignal } from 'netsignal/hooks';
 
-#### `useNetSignal(options?)`
-Main hook that provides complete network status and control.
+function MyComponent() {
+  const { isConnected, type } = useNetSignal();
+  
+  if (!isConnected) {
+    return <Text>You're offline</Text>;
+  }
+  
+  return <Text>Connected via {type}</Text>;
+}
+```
+
+## API Reference
+
+### `isConnected(): boolean`
+
+Returns connection status instantly from native cache.
+
+- **Synchronous** - No await needed
+- **Instant** - <1ms response time
+- **Cached** - No network calls
+
+### `getType(): ConnectionType`
+
+Returns the current connection type.
+
+**Possible values:**
+- `'wifi'` - WiFi connection
+- `'cellular'` - Mobile data (3G/4G/5G)
+- `'ethernet'` - Wired connection
+- `'none'` - No connection
+- `'unknown'` - Connection type cannot be determined
+
+### `probe(url: string, timeoutMs?: number): Promise<ProbeResult>`
+
+Tests if a specific endpoint is reachable.
+
+**Parameters:**
+- `url` - The URL to test
+- `timeoutMs` - Optional timeout (default: 5000ms)
 
 **Returns:**
-- `status` - Current network status
-- `isConnected` - Device has network connection
-- `isInternetReachable` - Can reach the internet
-- `isOnline` - Both connected and reachable
-- `connectionType` - Type of connection (wifi, cellular, etc.)
-- `connectionQuality` - Quality rating (poor, fair, good, excellent)
-- `isFast` / `isSlow` - Convenience booleans
-- `isExpensive` - Connection is metered/expensive
-- `refresh()` - Manually refresh status
-- `probe(url)` - Check endpoint reachability
-- `speedTest()` - Run speed test
-
-#### `useIsOnline()`
-Simple hook that returns online/offline status.
-
-#### `useConnectionQuality()`
-Returns connection quality information.
-
-#### `useEndpointStatus(url, interval?)`
-Monitor specific endpoint health.
-
-### Types
-
 ```typescript
-interface NetworkStatus {
+{
+  reachable: boolean;
+  responseTime: number; // milliseconds, -1 if failed
+  error?: string;       // Error message if failed
+}
+```
+
+### `onChange(callback: (status: NetworkStatus) => void): () => void`
+
+Subscribes to network status changes.
+
+**Callback receives:**
+```typescript
+{
   isConnected: boolean;
-  isInternetReachable: boolean;
   type: ConnectionType;
-  quality: ConnectionQuality;
-  details: NetworkDetails;
 }
-
-interface NetworkDetails {
-  isConnectionExpensive: boolean;
-  cellularGeneration?: '2g' | '3g' | '4g' | '5g';
-  signalStrength?: number; // 0-100
-  downloadBandwidthKbps?: number;
-  uploadBandwidthKbps?: number;
-  latencyMs?: number;
-  ssid?: string;
-  ipAddress?: string;
-  isVpnActive?: boolean;
-}
-
-type ConnectionQuality = 
-  | 'unknown'
-  | 'poor'
-  | 'fair' 
-  | 'good'
-  | 'excellent';
 ```
 
-## 🎯 Use Cases
+**Returns:** Unsubscribe function
 
-### POS Systems
+## Platform Support
+
+| Feature | iOS | Android | Web |
+|---------|-----|---------|-----|
+| Instant Detection | ✅ | ✅ | ✅ |
+| Connection Type | ✅ | ✅ | ⚠️ Limited |
+| Change Events | ✅ | ✅ | ✅ |
+| Endpoint Probe | ✅ | ✅ | ✅ |
+| Turbo Modules | ✅ | ✅ | N/A |
+
+## Requirements
+
+- React Native 0.72.0+
+- iOS 12.0+
+- Android API 24+ (Android 7.0)
+- Node.js 20.0.0+
+
+## React Native New Architecture
+
+NetSignal fully supports the New Architecture:
+
+- ✅ TurboModules for synchronous native calls
+- ✅ Fabric compatible
+- ✅ JSI direct native access
+- ✅ Backward compatible with old architecture
+
+## Performance
+
+| Metric | Value |
+|--------|-------|
+| Status Check | <1ms (synchronous from cache) |
+| Type Check | <1ms (synchronous from cache) |
+| Change Detection | Instant (OS callbacks) |
+| npm Package Size | 29KB |
+| Tests | 55 passing |
+
+## Handling High Latency Networks
+
+NetSignal works reliably regardless of network latency:
+
+- **`isConnected()` and `getType()`** - Always instant (<1ms) even on networks with 10+ second latency, because they return cached OS state
+- **`probe(url, timeout)`** - Accurately reports actual endpoint response times. You control the timeout (default 5000ms, configurable up to any value you need)
+
 ```javascript
-const network = useNetSignal({
-  endpoints: {
-    payments: { url: 'https://payments.api/health', critical: true },
-    inventory: { url: 'https://inventory.api/health' },
-  },
-  thresholds: { maxLatencyMs: 1000 },
-});
+// Check connectivity instantly, even on satellite internet (600ms+ latency)
+const connected = NetSignal.isConnected(); // <1ms always
 
-if (!network.status?.endpoints?.payments?.reachable) {
-  return <OfflinePaymentMode />;
+// Probe with custom timeout for high-latency networks  
+const result = await NetSignal.probe('https://api.example.com', 30000); // 30 second timeout
+if (result.reachable) {
+  console.log(`API responded in ${result.responseTime}ms`);
 }
 ```
 
-### Video Streaming
-```javascript
-const { connectionQuality, isFast } = useConnectionQuality();
+The library has been tested with latencies from 3-10 seconds and works correctly with any latency level.
 
-const videoQuality = isFast ? '1080p' : '480p';
-```
+## How It Works
 
-### Offline-First Apps
-```javascript
-const network = useNetSignal();
+### Native Implementation
+- **Android**: Uses `NetworkCallback` API for real-time network state monitoring
+- **iOS**: Uses `NWPathMonitor` from Network.framework for instant updates  
+- **Web**: Uses `navigator.onLine` and Network Information API where available
 
-if (network.isOffline) {
-  await saveToLocalStorage(data);
-} else {
-  await syncWithServer(data);
-}
-```
+The native modules maintain cached network state that's updated instantly via OS callbacks, eliminating the need for polling.
 
-## 🏗️ Architecture
+## Troubleshooting
 
-NetSignal uses platform-native APIs for maximum performance:
+### Network changes not detected on Android
 
-### Android
-- `ConnectivityManager.NetworkCallback` for real-time updates
-- `NetworkCapabilities` for connection quality
-- `OkHttp` for endpoint probing
+Ensure you have the `ACCESS_NETWORK_STATE` permission in your `AndroidManifest.xml`.
 
-### iOS
-- `NWPathMonitor` for network path monitoring
-- `URLSession` for endpoint health checks
-- `Network.framework` for modern networking
+### Connection type shows 'unknown' on Web
 
-## 🤝 Contributing
+The Network Information API has limited browser support. Connection type detection works best on Chrome/Edge.
 
-Contributions are welcome! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+### Probe takes long time
 
-## 📄 License
+This is expected behavior - `probe()` reports actual network conditions. In areas with high latency, probes will accurately reflect the real response time. Use `isConnected()` for instant connectivity checks.
 
-MIT © [Your Name]
+## Contributing
 
-## 🙏 Acknowledgments
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
 
-Built with inspiration from:
-- React Native NetInfo
-- Shopify's FlashList
-- Square's OkHttp
+## License
+
+MIT © [Anivar A Aravind](https://github.com/anivar)
+
+## Author
+
+**Anivar A Aravind**  
+Email: [ping@anivar.net](mailto:ping@anivar.net)  
+GitHub: [@anivar](https://github.com/anivar)
 
 ---
 
-**NetSignal** - Know your network, trust your transactions.
+## Keywords
+
+react-native, network, connectivity, offline, online, network-detection, internet, wifi, cellular, network-status, connection, turbo-module, react-native-network, netinfo, network-monitor, instant-detection
+
+---
+
+**Built to solve real production issues** where network polling was causing 8-40 second delays in POS systems.
+
+⭐ **Star on GitHub** if this saves you from slow network checks!

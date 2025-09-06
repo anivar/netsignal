@@ -1,0 +1,35 @@
+# Source files
+src/__tests__/
+*.test.ts
+*.test.tsx
+
+# Config files
+.gitignore
+.eslintrc
+jest.config.js
+jest.setup.js
+babel.config.js
+tsconfig.json
+tsconfig.build.json
+
+# Development
+node_modules/
+.git/
+.DS_Store
+*.log
+
+# Build artifacts
+android/build/
+ios/build/
+example/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Documentation source
+docs/
+*.md
+!README.md
+!LICENSE
