@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android%20%7C%20Web-lightgrey.svg)](https://github.com/anivar/netsignal)
 [![Bundle Size](https://img.shields.io/badge/size-2--5KB-brightgreen)](https://www.npmjs.com/package/netsignal)
-[![Tree Shakable](https://img.shields.io/badge/tree%20shakable-✓-brightgreen)](https://github.com/anivar/netsignal/blob/main/TREE_SHAKING.md)
+[![Tree Shakable](https://img.shields.io/badge/tree%20shakable-✓-brightgreen)](https://github.com/anivar/netsignal#tree-shaking)
 
 ```javascript
 import NetSignal from 'netsignal';
@@ -51,12 +51,11 @@ Add permission to `AndroidManifest.xml`:
 ## Usage
 
 ```javascript
-// Automatic platform detection (recommended)
 import NetSignal from 'netsignal';
 
-// Or choose specific platform for smaller bundle:
-import NetSignal from 'netsignal/web';    // Web only (3KB)
-import NetSignal from 'netsignal/native'; // React Native only (2KB)
+// Use the same API on all platforms
+const isOnline = NetSignal.isConnected();
+const type = NetSignal.getType();
 ```
 
 ## Quick Start
@@ -224,11 +223,22 @@ The native modules maintain cached network state that's updated instantly via OS
 
 NetSignal v0.2.0+ supports automatic tree-shaking. Your bundler will only include code for your target platform:
 
-- **Web builds** exclude React Native dependencies
-- **Native builds** exclude web polyfills  
-- **Automatic detection** based on your build environment
+- **Web builds** exclude React Native dependencies (3KB)
+- **Native builds** exclude web polyfills (2KB)
+- **Automatic detection** based on your build environment (5KB)
 
-See [Tree-Shaking Guide](./TREE_SHAKING.md) for bundler configuration details.
+### Platform-Specific Imports
+
+```javascript
+// Automatic detection (recommended for most cases)
+import NetSignal from 'netsignal';
+
+// Force specific platform for smaller bundle
+import NetSignal from 'netsignal/web';    // Web only (3KB)
+import NetSignal from 'netsignal/native'; // React Native only (2KB)
+```
+
+The default import automatically detects your platform - Metro bundler uses native, web bundlers use web implementation.
 
 ## Troubleshooting
 
