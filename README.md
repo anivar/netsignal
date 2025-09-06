@@ -5,7 +5,8 @@
 [![npm version](https://img.shields.io/npm/v/netsignal.svg)](https://www.npmjs.com/package/netsignal)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android%20%7C%20Web-lightgrey.svg)](https://github.com/anivar/netsignal)
-[![Bundle Size](https://img.shields.io/badge/size-29KB-brightgreen)](https://www.npmjs.com/package/netsignal)
+[![Bundle Size](https://img.shields.io/badge/size-5--8KB-brightgreen)](https://www.npmjs.com/package/netsignal)
+[![Tree Shakable](https://img.shields.io/badge/tree%20shakable-✓-brightgreen)](https://github.com/anivar/netsignal/blob/main/TREE_SHAKING.md)
 
 ```javascript
 // ❌ Slow: Traditional polling approach (3-40 seconds)
@@ -36,7 +37,8 @@ NetSignal uses **native OS callbacks** instead of polling. The operating system 
 | **Battery Impact** | Minimal ✅ | High (constant polling) ❌ |
 | **Data Usage** | Zero 🎯 | Wastes data on checks 💸 |
 | **Accuracy** | Real-time OS state 📡 | Can miss quick changes ⚠️ |
-| **Package Size** | 29KB 📦 | Often 100KB+ 📦📦📦 |
+| **Bundle Size** | 5-8KB 🎯 | Often 100KB+ 📦📦📦 |
+| **Tree Shakable** | ✅ Platform-specific | ❌ Includes all code |
 
 ## Installation
 
@@ -61,6 +63,23 @@ Add permission to `AndroidManifest.xml`:
 ```xml
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
+
+## 🎯 Tree-Shakable Imports (v0.2.0+)
+
+NetSignal automatically excludes unused platform code:
+
+```javascript
+// Automatic platform detection
+import NetSignal from 'netsignal'; // 5-8KB based on platform
+
+// Force web-only (5KB) - no React Native code
+import NetSignal from 'netsignal/web';
+
+// Force native-only (8KB) - no web code  
+import NetSignal from 'netsignal/native';
+```
+
+See [Tree-Shaking Guide](./TREE_SHAKING.md) for bundler configuration.
 
 ## Quick Start - 30 Second Integration
 
