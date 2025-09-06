@@ -1,6 +1,6 @@
 # NetSignal
 
-⚡ **Instant network detection for React Native & Web** - Get network status in <1ms with 93% smaller bundle size
+⚡ **Instant network detection for React Native & Web** - Get network status in <1ms
 
 [![npm version](https://img.shields.io/npm/v/netsignal.svg)](https://www.npmjs.com/package/netsignal)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -9,42 +9,20 @@
 [![Tree Shakable](https://img.shields.io/badge/tree%20shakable-✓-brightgreen)](https://github.com/anivar/netsignal/blob/main/TREE_SHAKING.md)
 
 ```javascript
-// ❌ Slow & Heavy: Traditional approach
-await fetch('https://google.com') // 3-40 seconds + 100KB+ bundle
-  .then(() => true)
-  .catch(() => false);
+import NetSignal from 'netsignal';
 
-// ✅ Fast & Light: NetSignal v0.2.0
-import NetSignal from 'netsignal/web'; // Only 3KB!
-const isOnline = NetSignal.isConnected(); // <1ms instant!
+// Instant network status - no waiting!
+const isOnline = NetSignal.isConnected(); // <1ms
+const connectionType = NetSignal.getType(); // 'wifi' | 'cellular' | 'none'
 ```
 
-## Why NetSignal v0.2.0?
+## Features
 
-### 🎯 The Problems We Solve
-
-1. **🐌 Slow Detection**: Apps freeze for 3-40 seconds checking network status
-2. **📦 Huge Bundles**: Network libraries add 40-120KB to your app
-3. **🔋 Battery Drain**: Constant polling wastes battery
-4. **💸 Wasted Data**: Unnecessary API calls just to check connectivity
-
-### ✨ The NetSignal Solution
-
-- **⚡ Instant Detection**: <1ms response using native OS callbacks
-- **🪶 Tiny Bundle**: Only 2-3KB with tree-shaking (93% smaller!)
-- **🔋 Zero Polling**: No battery drain, no background tasks
-- **🎯 Platform Optimized**: Load only the code you need
-
-## Key Features
-
-| Feature | NetSignal | Traditional Polling |
-|---------|-----------|--------------------|
-| **Detection Speed** | <1ms ⚡ | 3-40 seconds 🐌 |
-| **Battery Impact** | Minimal ✅ | High (constant polling) ❌ |
-| **Data Usage** | Zero 🎯 | Wastes data on checks 💸 |
-| **Accuracy** | Real-time OS state 📡 | Can miss quick changes ⚠️ |
-| **Bundle Size** | 2-5KB 🎯 | Often 100KB+ 📦📦📦 |
-| **Tree Shakable** | ✅ Platform-specific | ❌ Includes all code |
+- **⚡ Instant Detection** - Get network status in <1ms using native OS callbacks
+- **🪶 Tiny Bundle** - Only 2-5KB depending on platform
+- **🔋 Zero Polling** - No battery drain, uses system events
+- **📱 Cross Platform** - Works on iOS, Android, and Web
+- **🎯 Tree Shakable** - Load only the code for your platform
 
 ## Installation
 
@@ -70,32 +48,18 @@ Add permission to `AndroidManifest.xml`:
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
 
-## 🎯 Tree-Shakable Imports (v0.2.0+)
-
-NetSignal v0.2.0 introduces **revolutionary bundle size reduction** through platform-specific builds:
-
-### Bundle Sizes by Import Method
-
-| Import Method | Bundle Size | Size Reduction | Best For |
-|--------------|-------------|----------------|----------|
-| `netsignal/web` | **3KB** | 89% smaller | Web apps, PWAs |
-| `netsignal/native` | **2KB** | 93% smaller | React Native apps |
-| `netsignal` (auto) | **5KB** | 81% smaller | Universal apps |
+## Usage
 
 ```javascript
-// 🌐 Web-only (3KB) - no React Native dependencies
-import NetSignal from 'netsignal/web';
-
-// 📱 Native-only (2KB) - no web polyfills
-import NetSignal from 'netsignal/native';
-
-// 🔄 Automatic detection (5KB) - tree-shakes based on platform
+// Automatic platform detection (recommended)
 import NetSignal from 'netsignal';
+
+// Or choose specific platform for smaller bundle:
+import NetSignal from 'netsignal/web';    // Web only (3KB)
+import NetSignal from 'netsignal/native'; // React Native only (2KB)
 ```
 
-See [Tree-Shaking Guide](./TREE_SHAKING.md) for bundler configuration.
-
-## Quick Start - 30 Second Integration
+## Quick Start
 
 ```typescript
 import NetSignal from 'netsignal';
@@ -216,94 +180,55 @@ NetSignal fully supports the New Architecture:
 - ✅ JSI direct native access
 - ✅ Backward compatible with old architecture
 
-## Performance
+## Advanced Usage
 
-| Metric | Value |
-|--------|-------|
-| Status Check | <1ms (synchronous from cache) |
-| Type Check | <1ms (synchronous from cache) |
-| Change Detection | Instant (OS callbacks) |
-| Bundle Size (Web) | 3KB (89% smaller than v0.1.0) |
-| Bundle Size (Native) | 2KB (93% smaller than v0.1.0) |
-| Bundle Size (Auto) | 5KB (81% smaller than v0.1.0) |
-| Tests | 68 passing |
-
-## Handling High Latency Networks
+### Handling High Latency Networks
 
 NetSignal works reliably regardless of network latency:
 
-- **`isConnected()` and `getType()`** - Always instant (<1ms) even on networks with 10+ second latency, because they return cached OS state
-- **`probe(url, timeout)`** - Accurately reports actual endpoint response times. You control the timeout (default 5000ms, configurable up to any value you need)
-
 ```javascript
-// Check connectivity instantly, even on satellite internet (600ms+ latency)
+// Check connectivity instantly, even on satellite internet
 const connected = NetSignal.isConnected(); // <1ms always
 
 // Probe with custom timeout for high-latency networks  
-const result = await NetSignal.probe('https://api.example.com', 30000); // 30 second timeout
+const result = await NetSignal.probe('https://api.example.com', 30000);
 if (result.reachable) {
   console.log(`API responded in ${result.responseTime}ms`);
 }
 ```
 
-The library has been tested with latencies from 3-10 seconds and works correctly with any latency level.
+### TypeScript Support
 
-## What's New in v0.2.0
+Full TypeScript support with type definitions included:
 
-### 🚀 Massive Bundle Size Reduction
-- **Up to 93% smaller** bundle sizes through tree-shaking
-- Platform-specific builds eliminate unused code
-- Web builds no longer include React Native dependencies
-- Native builds no longer include web polyfills
+```typescript
+import NetSignal, { ConnectionType, NetworkStatus, ProbeResult } from 'netsignal';
 
-### 📦 Smart Platform Detection
-- Automatic platform detection at build time
-- Zero runtime overhead for platform checks
-- Bundlers automatically select the right implementation
+const status: NetworkStatus = {
+  isConnected: true,
+  type: 'wifi' as ConnectionType
+};
 
-### 🔧 Improved Architecture
-- Modular design with separate platform implementations
-- Clean separation between web and native code
-- Full TypeScript support with platform-specific types
+const result: ProbeResult = await NetSignal.probe('https://api.com');
+```
 
 ## How It Works
 
-### Tree-Shaking Architecture (v0.2.0+)
-NetSignal uses conditional exports in package.json to provide different entry points for different environments:
-- Metro bundler (React Native) automatically uses the native implementation
-- Web bundlers (Webpack, Vite, etc.) automatically use the web implementation
-- The main entry point includes runtime detection as a fallback
-
-### Native Implementation
 - **Android**: Uses `NetworkCallback` API for real-time network state monitoring
 - **iOS**: Uses `NWPathMonitor` from Network.framework for instant updates  
 - **Web**: Uses `navigator.onLine` and Network Information API where available
 
 The native modules maintain cached network state that's updated instantly via OS callbacks, eliminating the need for polling.
 
-## Migration from v0.1.0
+## Tree Shaking
 
-### ✨ Good News: No Code Changes Required!
+NetSignal v0.2.0+ supports automatic tree-shaking. Your bundler will only include code for your target platform:
 
-The API is 100% backward compatible. To get the bundle size benefits:
+- **Web builds** exclude React Native dependencies
+- **Native builds** exclude web polyfills  
+- **Automatic detection** based on your build environment
 
-1. **Update to v0.2.0:**
-   ```bash
-   npm install netsignal@latest
-   ```
-
-2. **Optional: Use platform-specific imports for maximum savings:**
-   ```javascript
-   // Old (v0.1.0) - 29KB
-   import NetSignal from 'netsignal';
-   
-   // New (v0.2.0) - Choose based on your platform:
-   import NetSignal from 'netsignal/web';    // 3KB for web
-   import NetSignal from 'netsignal/native'; // 2KB for React Native
-   import NetSignal from 'netsignal';        // 5KB auto-detect
-   ```
-
-3. **That's it!** Enjoy 89-93% smaller bundles with zero API changes.
+See [Tree-Shaking Guide](./TREE_SHAKING.md) for bundler configuration details.
 
 ## Troubleshooting
 
@@ -317,27 +242,7 @@ The Network Information API has limited browser support. Connection type detecti
 
 ### Probe takes long time
 
-This is expected behavior - `probe()` reports actual network conditions. In areas with high latency, probes will accurately reflect the real response time. Use `isConnected()` for instant connectivity checks.
-
-## Bundle Size Comparison
-
-### v0.1.0 vs v0.2.0
-
-```
-v0.1.0 (Monolithic):  ████████████████████████████ 29KB
-v0.2.0 (Auto):        █████ 5KB (-81%)
-v0.2.0 (Web):         ███ 3KB (-89%)
-v0.2.0 (Native):      ██ 2KB (-93%)
-```
-
-### vs Popular Alternatives
-
-| Library | Bundle Size | Detection Speed | Tree-Shakable |
-|---------|------------|----------------|---------------|
-| **NetSignal v0.2.0** | **2-5KB** | **<1ms** | **✅** |
-| @react-native-community/netinfo | 38KB | 100-500ms | ❌ |
-| react-native-offline | 121KB | 3-40s | ❌ |
-| react-native-connection-info | 45KB | 1-5s | ❌ |
+This is expected behavior - `probe()` reports actual network conditions. Use `isConnected()` for instant connectivity checks.
 
 ## Contributing
 
@@ -355,12 +260,4 @@ GitHub: [@anivar](https://github.com/anivar)
 
 ---
 
-## Keywords
-
-react-native, network, connectivity, offline, online, network-detection, internet, wifi, cellular, network-status, connection, turbo-module, react-native-network, netinfo, network-monitor, instant-detection
-
----
-
-**Built to solve real production issues** where network polling was causing 8-40 second delays in POS systems.
-
-⭐ **Star on GitHub** if this saves you from slow network checks!
+⭐ **Star on GitHub** if NetSignal helps your project!
