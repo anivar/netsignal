@@ -18,7 +18,7 @@ export function useNetSignal(): NetworkStatus {
     });
 
     // Subscribe to changes
-    const unsubscribe = NetSignal.onChange((newStatus) => {
+    const unsubscribe = NetSignal.onChange((newStatus: NetworkStatus) => {
       setStatus(newStatus);
     });
 

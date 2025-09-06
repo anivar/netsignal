@@ -75,8 +75,14 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
         }));
       }
 
-      // Import fresh NetSignal for this platform
-      NetSignal = require('../index').default;
+      // Import the appropriate implementation based on platform
+      if (platformName === 'web') {
+        const { WebNetSignal } = require('../implementations/web');
+        NetSignal = new WebNetSignal();
+      } else {
+        const { NativeNetSignal } = require('../implementations/native');
+        NetSignal = new NativeNetSignal();
+      }
       const RN = require('react-native');
       NativeModules = RN.NativeModules;
       NativeEventEmitter = RN.NativeEventEmitter;
@@ -110,8 +116,9 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
           });
           
           jest.resetModules();
-          const OfflineNetSignal = require('../index').default;
-          expect(OfflineNetSignal.isConnected()).toBe(false);
+          const { WebNetSignal } = require('../implementations/web');
+          const offlineNetSignal = new WebNetSignal();
+          expect(offlineNetSignal.isConnected()).toBe(false);
         });
       } else {
         it(`should use native module on ${platformName}`, () => {
@@ -141,6 +148,12 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
     describe('probe()', () => {
       if (platformName === 'web') {
         it('should use fetch API on web', async () => {
+          // Mock AbortController
+          global.AbortController = jest.fn().mockImplementation(() => ({
+            abort: jest.fn(),
+            signal: {}
+          }));
+          
           (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
 
           const result = await NetSignal.probe('https://example.com');

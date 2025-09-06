@@ -1,6 +1,6 @@
 {
   "name": "netsignal",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Instant network detection for React Native and Web - Turbo Module enabled",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -10,9 +10,23 @@
   "exports": {
     ".": {
       "types": "./lib/typescript/index.d.ts",
-      "react-native": "./src/index.ts",
+      "react-native": "./lib/module/index.native.js",
+      "browser": "./lib/module/index.web.js",
       "import": "./lib/module/index.js",
-      "require": "./lib/commonjs/index.js"
+      "require": "./lib/commonjs/index.js",
+      "default": "./lib/commonjs/index.js"
+    },
+    "./web": {
+      "types": "./lib/typescript/index.web.d.ts",
+      "import": "./lib/module/index.web.js",
+      "require": "./lib/commonjs/index.web.js",
+      "default": "./lib/commonjs/index.web.js"
+    },
+    "./native": {
+      "types": "./lib/typescript/index.native.d.ts",
+      "import": "./lib/module/index.native.js",
+      "require": "./lib/commonjs/index.native.js",
+      "default": "./lib/commonjs/index.native.js"
     },
     "./hooks": {
       "types": "./lib/typescript/hooks.d.ts",
