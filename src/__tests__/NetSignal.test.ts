@@ -263,21 +263,31 @@ describe('NetSignal - Web Platform', () => {
   });
 
   it('should detect web connection status', () => {
-    // Import NetSignal after setting up web environment
-    const WebNetSignal = require('../index').default;
+    // Import web implementation directly
+    const { WebNetSignal } = require('../implementations/web');
+    const netSignal = new WebNetSignal();
 
-    const result = WebNetSignal.isConnected();
+    const result = netSignal.isConnected();
     expect(result).toBe(true);
   });
 
   it('should probe URLs on web platform', async () => {
-    const mockResponse = { ok: true };
-    (global.fetch as jest.Mock).mockResolvedValue(mockResponse);
+    // Mock fetch to return success with AbortController
+    global.AbortController = jest.fn().mockImplementation(() => ({
+      abort: jest.fn(),
+      signal: {}
+    }));
+    
+    global.fetch = jest.fn().mockResolvedValue({ 
+      ok: true,
+      status: 200
+    });
 
-    // Use the already imported web NetSignal
-    const WebNetSignal = require('../index').default;
+    // Use web implementation directly
+    const { WebNetSignal } = require('../implementations/web');
+    const netSignal = new WebNetSignal();
 
-    const result = await WebNetSignal.probe('https://example.com');
+    const result = await netSignal.probe('https://example.com');
 
     expect(result.reachable).toBe(true);
     expect(global.fetch).toHaveBeenCalledWith(
