@@ -1,6 +1,6 @@
 {
   "name": "netsignal",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Instant network detection for React Native and Web - Turbo Module enabled",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
