@@ -3,8 +3,8 @@
  * Using latest React Native Testing Library patterns
  */
 
-import { NativeModules, NativeEventEmitter } from 'react-native';
-import NetSignal, { getType, probe, onChange } from '../index';
+import { NativeEventEmitter, NativeModules } from 'react-native';
+import NetSignal, { getType, onChange, probe } from '../index';
 
 /// <reference path="./global.d.ts" />
 
@@ -98,7 +98,7 @@ describe('NetSignal - Core API', () => {
     it('should return all valid connection types', () => {
       const types = ['wifi', 'cellular', 'ethernet', 'none', 'unknown'];
 
-      types.forEach(type => {
+      types.forEach((type) => {
         jest.clearAllMocks();
         (NativeModules.NetSignal.getConnectionType as jest.Mock).mockReturnValue(type);
         expect(getType()).toBe(type);
@@ -158,7 +158,9 @@ describe('NetSignal - Core API', () => {
     it('should handle native module errors', async () => {
       (NativeModules.NetSignal.probe as jest.Mock).mockRejectedValue(new Error('Native error'));
 
-      await expect(NetSignal.probe('https://example.com')).rejects.toThrow('Network request to "https://example.com" failed: Native error');
+      await expect(NetSignal.probe('https://example.com')).rejects.toThrow(
+        'Network request to "https://example.com" failed: Native error',
+      );
     });
   });
 
@@ -173,13 +175,16 @@ describe('NetSignal - Core API', () => {
 
       // NativeEventEmitter is created in the NetSignal constructor
       // We need to mock its instance methods
-      (NativeEventEmitter as jest.MockedClass<typeof NativeEventEmitter>).mockImplementation(() => ({
-        addListener: jest.fn().mockReturnValue(mockListener),
-        removeAllListeners: jest.fn(),
-        emit: jest.fn(),
-        listenerCount: jest.fn().mockReturnValue(0),
-        removeSubscription: jest.fn(),
-      } as unknown as NativeEventEmitter));
+      (NativeEventEmitter as jest.MockedClass<typeof NativeEventEmitter>).mockImplementation(
+        () =>
+          ({
+            addListener: jest.fn().mockReturnValue(mockListener),
+            removeAllListeners: jest.fn(),
+            emit: jest.fn(),
+            listenerCount: jest.fn().mockReturnValue(0),
+            removeSubscription: jest.fn(),
+          }) as unknown as NativeEventEmitter,
+      );
 
       // Re-import to get fresh instance with mocked emitter
       jest.resetModules();
@@ -253,9 +258,15 @@ describe('NetSignal - Web Platform', () => {
     jest.resetModules();
     // Clean up global mocks
     const g = global as any;
-    if ('navigator' in g) {delete g.navigator;}
-    if ('window' in g) {delete g.window;}
-    if ('fetch' in g) {delete g.fetch;}
+    if ('navigator' in g) {
+      delete g.navigator;
+    }
+    if ('window' in g) {
+      delete g.window;
+    }
+    if ('fetch' in g) {
+      delete g.fetch;
+    }
   });
 
   it('should detect web connection status', () => {
@@ -292,7 +303,7 @@ describe('NetSignal - Web Platform', () => {
         method: 'HEAD',
         mode: 'cors',
         cache: 'no-cache',
-      })
+      }),
     );
   });
 });
@@ -325,7 +336,9 @@ describe('NetSignal - Performance', () => {
     }
 
     // Remove all listeners
-    listeners.forEach(unsubscribe => unsubscribe());
+    for (const unsubscribe of listeners) {
+      unsubscribe();
+    }
 
     // Memory should be freed (this would be monitored in real environment)
     expect(listeners.length).toBe(100);
@@ -340,7 +353,7 @@ describe('NetSignal - Edge Cases', () => {
     // Setup mock emitter that we can control
     let registeredCallback: any;
     const mockEmitter = {
-      addListener: jest.fn((event, cb) => {
+      addListener: jest.fn((_event, cb) => {
         registeredCallback = cb;
         return { remove: jest.fn() };
       }),

@@ -3,8 +3,8 @@
  * Using @testing-library/react-native v15+
  */
 
+import { act, renderHook, waitFor } from '@testing-library/react-native';
 import React from 'react';
-import { renderHook, act, waitFor } from '@testing-library/react-native';
 import { useNetSignal } from '../hooks';
 import NetSignal from '../index';
 
@@ -155,9 +155,7 @@ describe('useNetSignal Hook', () => {
 
     // Test for React 18+ concurrent features
     const { result } = renderHook(() => useNetSignal(), {
-      wrapper: ({ children }) => (
-        <React.StrictMode>{children}</React.StrictMode>
-      ),
+      wrapper: ({ children }) => <React.StrictMode>{children}</React.StrictMode>,
     });
 
     expect(result.current).toEqual({

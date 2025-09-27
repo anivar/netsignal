@@ -2,7 +2,7 @@
  * Network quality detection utilities
  */
 
-import type { NetworkQuality, ExtendedProbeResult } from '../types';
+import type { ExtendedProbeResult, NetworkQuality } from '../types';
 
 /**
  * Determine network quality based on latency
@@ -10,10 +10,18 @@ import type { NetworkQuality, ExtendedProbeResult } from '../types';
  * @returns Network quality rating
  */
 export function getQualityFromLatency(latency: number): NetworkQuality {
-  if (latency < 0) {return 'unknown';}
-  if (latency < 50) {return 'excellent';}
-  if (latency < 150) {return 'good';}
-  if (latency < 300) {return 'fair';}
+  if (latency < 0) {
+    return 'unknown';
+  }
+  if (latency < 50) {
+    return 'excellent';
+  }
+  if (latency < 150) {
+    return 'good';
+  }
+  if (latency < 300) {
+    return 'fair';
+  }
   return 'poor';
 }
 
@@ -39,7 +47,7 @@ export function calculateNetworkQuality(results: number[]): {
     };
   }
 
-  const validResults = results.filter(r => r >= 0);
+  const validResults = results.filter((r) => r >= 0);
   if (validResults.length === 0) {
     return {
       quality: 'unknown',
@@ -82,19 +90,18 @@ export function calculateNetworkQuality(results: number[]): {
  * @returns Extended probe result with quality metrics
  */
 export async function probeWithRetry(
-  probeFn: (url: string, timeout?: number) => Promise<{ reachable: boolean; responseTime: number; error?: string }>,
+  probeFn: (
+    url: string,
+    timeout?: number,
+  ) => Promise<{ reachable: boolean; responseTime: number; error?: string }>,
   url: string,
   options: {
     timeout?: number;
     retries?: number;
     retryDelay?: number;
-  } = {}
+  } = {},
 ): Promise<ExtendedProbeResult> {
-  const {
-    timeout = 5000,
-    retries = 0,
-    retryDelay = 1000,
-  } = options;
+  const { timeout = 5000, retries = 0, retryDelay = 1000 } = options;
 
   const results: number[] = [];
   let lastError: string | undefined;
@@ -103,7 +110,7 @@ export async function probeWithRetry(
   for (let attempt = 0; attempt <= retries; attempt++) {
     if (attempt > 0) {
       // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, retryDelay));
+      await new Promise((resolve) => setTimeout(resolve, retryDelay));
     }
 
     try {
@@ -116,13 +123,13 @@ export async function probeWithRetry(
         results.push(-1);
         lastError = result.error;
       }
-    } catch (error: any) {
+    } catch (error) {
       results.push(-1);
-      lastError = error.message;
+      lastError = error instanceof Error ? error.message : 'Unknown error';
     }
   }
 
-  const validResults = results.filter(r => r >= 0);
+  const validResults = results.filter((r) => r >= 0);
   const reachable = successCount > 0;
 
   if (validResults.length === 0) {

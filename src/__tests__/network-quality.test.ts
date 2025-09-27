@@ -2,12 +2,12 @@
  * Tests for network quality utilities
  */
 
+import { DEFAULT_PROBE_URLS } from '../constants';
 import {
-  getQualityFromLatency,
   calculateNetworkQuality,
+  getQualityFromLatency,
   probeWithRetry,
 } from '../utils/network-quality';
-import { DEFAULT_PROBE_URLS } from '../constants';
 
 describe('Network Quality Utilities', () => {
   describe('getQualityFromLatency', () => {

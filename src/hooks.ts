@@ -1,7 +1,11 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
-import NetSignal, { NetworkStatus, ExtendedProbeResult, NetworkQuality } from './index';
-import { getQualityFromLatency, probeWithRetry } from './utils/network-quality';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { DEFAULT_PROBE_URLS } from './constants';
+import NetSignal, {
+  type ExtendedProbeResult,
+  type NetworkQuality,
+  type NetworkStatus,
+} from './index';
+import { getQualityFromLatency, probeWithRetry } from './utils/network-quality';
 
 /**
  * React hook for network status
@@ -67,7 +71,7 @@ export function useNetworkProbe(
     retries?: number;
     retryDelay?: number;
     enabled?: boolean; // Whether to auto-probe
-  } = {}
+  } = {},
 ): {
   result: ExtendedProbeResult | null;
   isLoading: boolean;
@@ -86,21 +90,23 @@ export function useNetworkProbe(
   const intervalRef = useRef<NodeJS.Timeout>();
 
   const probe = useCallback(async () => {
-    if (!url || !enabled) {return;}
+    if (!url || !enabled) {
+      return;
+    }
 
     setIsLoading(true);
     try {
-      const probeResult = await probeWithRetry(
-        NetSignal.probe.bind(NetSignal),
-        url,
-        { timeout, retries, retryDelay }
-      );
+      const probeResult = await probeWithRetry(NetSignal.probe.bind(NetSignal), url, {
+        timeout,
+        retries,
+        retryDelay,
+      });
       setResult(probeResult);
-    } catch (error: any) {
+    } catch (error) {
       setResult({
         reachable: false,
         responseTime: -1,
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         attempts: retries + 1,
         quality: 'unknown',
       });
@@ -110,7 +116,9 @@ export function useNetworkProbe(
   }, [url, timeout, retries, retryDelay, enabled]);
 
   useEffect(() => {
-    if (!enabled) {return;}
+    if (!enabled) {
+      return;
+    }
 
     // Initial probe
     probe();
@@ -154,7 +162,7 @@ export function useNetworkQuality(
     sampleSize?: number; // Number of samples to take
     interval?: number; // How often to check quality (ms)
     enabled?: boolean;
-  } = {}
+  } = {},
 ): {
   quality: NetworkQuality;
   latency: number | null;
@@ -162,11 +170,7 @@ export function useNetworkQuality(
   isChecking: boolean;
   checkQuality: () => Promise<void>;
 } {
-  const {
-    sampleSize = 3,
-    interval = 0,
-    enabled = true,
-  } = options;
+  const { sampleSize = 3, interval = 0, enabled = true } = options;
 
   const [quality, setQuality] = useState<NetworkQuality>('unknown');
   const [latency, setLatency] = useState<number | null>(null);
@@ -175,7 +179,9 @@ export function useNetworkQuality(
   const intervalRef = useRef<NodeJS.Timeout>();
 
   const checkQuality = useCallback(async () => {
-    if (!enabled) {return;}
+    if (!enabled) {
+      return;
+    }
 
     const url = testUrl || DEFAULT_PROBE_URLS.primary;
     const samples: number[] = [];
@@ -185,7 +191,7 @@ export function useNetworkQuality(
       for (let i = 0; i < sampleSize; i++) {
         if (i > 0) {
           // Small delay between samples
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
         }
 
         try {
@@ -218,7 +224,9 @@ export function useNetworkQuality(
   }, [testUrl, sampleSize, enabled]);
 
   useEffect(() => {
-    if (!enabled) {return;}
+    if (!enabled) {
+      return;
+    }
 
     // Initial check
     checkQuality();

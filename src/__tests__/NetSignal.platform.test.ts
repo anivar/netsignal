@@ -93,9 +93,15 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
       if (platformName === 'web') {
         // Clean up global mocks properly
         const g = global as any;
-        if ('navigator' in g) {delete g.navigator;}
-        if ('window' in g) {delete g.window;}
-        if ('fetch' in g) {delete g.fetch;}
+        if ('navigator' in g) {
+          delete g.navigator;
+        }
+        if ('window' in g) {
+          delete g.window;
+        }
+        if ('fetch' in g) {
+          delete g.fetch;
+        }
       }
     });
 
@@ -165,7 +171,7 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
               method: 'HEAD',
               mode: 'cors',
               cache: 'no-cache',
-            })
+            }),
           );
         });
       } else {
@@ -174,10 +180,7 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
 
           expect(result.reachable).toBe(true);
           expect(result.responseTime).toBe(100);
-          expect(NativeModules.NetSignal.probe).toHaveBeenCalledWith(
-            'https://example.com',
-            5000
-          );
+          expect(NativeModules.NetSignal.probe).toHaveBeenCalledWith('https://example.com', 5000);
         });
       }
     });
@@ -189,8 +192,14 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
 
           const unsubscribe = NetSignal.onChange(callback);
 
-          expect(global.window.addEventListener).toHaveBeenCalledWith('online', expect.any(Function));
-          expect(global.window.addEventListener).toHaveBeenCalledWith('offline', expect.any(Function));
+          expect(global.window.addEventListener).toHaveBeenCalledWith(
+            'online',
+            expect.any(Function),
+          );
+          expect(global.window.addEventListener).toHaveBeenCalledWith(
+            'offline',
+            expect.any(Function),
+          );
 
           unsubscribe();
 

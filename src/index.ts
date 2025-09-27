@@ -11,21 +11,22 @@
  * @copyright 2025
  */
 
+import type { BaseNetSignal } from './implementations/base';
 import type {
   ConnectionType,
-  NetworkStatus,
-  ProbeResult,
+  ExtendedProbeResult,
   NetworkQuality,
   NetworkQualityInfo,
-  ExtendedProbeResult,
+  NetworkStatus,
   ProbeOptions,
+  ProbeResult,
 } from './types';
 
 // Runtime platform detection (only used as fallback)
 const isWeb = typeof window !== 'undefined' && typeof window.document !== 'undefined';
 
 // Dynamic import based on platform
-let NetSignalImpl: any;
+let NetSignalImpl: typeof BaseNetSignal;
 
 if (isWeb) {
   // Web environment - load only web implementation

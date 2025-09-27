@@ -55,7 +55,7 @@ describe('NetSignal - High Latency Scenarios', () => {
 
       // Simulate 3 second latency
       (RN.NativeModules.NetSignal.probe as jest.Mock).mockImplementation(() => {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           setTimeout(() => {
             resolve({
               reachable: true,
@@ -83,7 +83,7 @@ describe('NetSignal - High Latency Scenarios', () => {
 
       // Simulate 7 second latency
       (RN.NativeModules.NetSignal.probe as jest.Mock).mockImplementation(() => {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           setTimeout(() => {
             resolve({
               reachable: true,
@@ -108,7 +108,7 @@ describe('NetSignal - High Latency Scenarios', () => {
 
       // Simulate 9 second latency
       (RN.NativeModules.NetSignal.probe as jest.Mock).mockImplementation(() => {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           setTimeout(() => {
             resolve({
               reachable: true,
@@ -132,7 +132,7 @@ describe('NetSignal - High Latency Scenarios', () => {
 
       // Simulate 5 second latency (at default timeout boundary)
       (RN.NativeModules.NetSignal.probe as jest.Mock).mockImplementation(() => {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           setTimeout(() => {
             resolve({
               reachable: true,
@@ -156,7 +156,7 @@ describe('NetSignal - High Latency Scenarios', () => {
 
       // Simulate latency exceeding timeout
       (RN.NativeModules.NetSignal.probe as jest.Mock).mockImplementation(() => {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           // Native module would handle timeout
           resolve({
             reachable: false,
@@ -183,7 +183,7 @@ describe('NetSignal - High Latency Scenarios', () => {
       // Simulate intermittent connectivity
       (RN.NativeModules.NetSignal.probe as jest.Mock).mockImplementation(() => {
         callCount++;
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           if (callCount % 2 === 0) {
             // Even calls succeed with high latency
             setTimeout(() => {
@@ -314,7 +314,8 @@ describe('NetSignal - High Latency Scenarios', () => {
           NetSignal: {
             isConnected: jest.fn().mockReturnValue(true),
             getConnectionType: jest.fn().mockReturnValue('wifi'),
-            probe: jest.fn()
+            probe: jest
+              .fn()
               .mockResolvedValueOnce({ reachable: false, responseTime: -1, error: 'Timeout' })
               .mockResolvedValueOnce({ reachable: false, responseTime: -1, error: 'Timeout' })
               .mockResolvedValueOnce({ reachable: true, responseTime: 2500 }),
@@ -338,7 +339,7 @@ describe('NetSignal - High Latency Scenarios', () => {
             return result;
           }
           // App decides to wait before retry
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
         }
         return { reachable: false, responseTime: -1, error: 'Max retries exceeded' };
       }
@@ -358,7 +359,7 @@ describe('NetSignal - High Latency Scenarios', () => {
         NativeModules: {
           NetSignal: {
             isConnected: jest.fn(() => isConnected),
-            getConnectionType: jest.fn(() => isConnected ? 'cellular' : 'none'),
+            getConnectionType: jest.fn(() => (isConnected ? 'cellular' : 'none')),
             probe: jest.fn(),
             addListener: jest.fn(),
             removeListeners: jest.fn(),
@@ -418,8 +419,8 @@ describe('NetSignal - High Latency Scenarios', () => {
       const avgTime = timings.reduce((a, b) => a + b, 0) / timings.length;
       const maxTime = Math.max(...timings);
 
-      expect(avgTime).toBeLessThan(1);   // Average < 1ms
-      expect(maxTime).toBeLessThan(5);   // Max < 5ms (more realistic for test environment)
+      expect(avgTime).toBeLessThan(1); // Average < 1ms
+      expect(maxTime).toBeLessThan(5); // Max < 5ms (more realistic for test environment)
     });
   });
 });

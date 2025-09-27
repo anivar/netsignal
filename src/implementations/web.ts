@@ -3,11 +3,22 @@
  * Tree-shakable - no React Native dependencies
  */
 
-import { BaseNetSignal } from './base';
 import type { ConnectionType, NetworkStatus, ProbeResult } from '../types';
+import { BaseNetSignal } from './base';
+
+// Network Information API types
+interface NetworkInformation {
+  type?: string;
+  effectiveType?: string;
+  downlink?: number;
+  rtt?: number;
+  saveData?: boolean;
+  addEventListener?: (type: string, handler: () => void) => void;
+  removeEventListener?: (type: string, handler: () => void) => void;
+}
 
 export class WebNetSignal extends BaseNetSignal {
-  private listeners = new Map<string, any>();
+  private listeners = new Map<string, (status: NetworkStatus) => void>();
   private state = {
     isConnected: typeof navigator !== 'undefined' ? navigator.onLine : true,
     type: 'unknown' as ConnectionType,
@@ -42,7 +53,7 @@ export class WebNetSignal extends BaseNetSignal {
           error: 'Invalid protocol. Only HTTP/HTTPS are supported',
         };
       }
-    } catch (error) {
+    } catch (_error) {
       return {
         reachable: false,
         responseTime: -1,
@@ -76,7 +87,7 @@ export class WebNetSignal extends BaseNetSignal {
         reachable: response.ok,
         responseTime: Date.now() - start,
       };
-    } catch (error: any) {
+    } catch (error) {
       return {
         reachable: false,
         responseTime: -1,
@@ -120,7 +131,7 @@ export class WebNetSignal extends BaseNetSignal {
       window.removeEventListener('offline', offlineHandler);
     });
 
-    const conn = (navigator as any).connection;
+    const conn = (navigator as unknown as { connection?: NetworkInformation }).connection;
     if (conn) {
       const changeHandler = () => this.updateState();
       conn.addEventListener('change', changeHandler);
@@ -135,7 +146,9 @@ export class WebNetSignal extends BaseNetSignal {
    */
   public cleanup(): void {
     // Clean up global handlers
-    this.globalHandlers.forEach(cleanup => cleanup());
+    for (const cleanup of this.globalHandlers) {
+      cleanup();
+    }
     this.globalHandlers = [];
 
     // Clean up all onChange listeners
@@ -150,7 +163,7 @@ export class WebNetSignal extends BaseNetSignal {
       return;
     }
 
-    const conn = (navigator as any).connection;
+    const conn = (navigator as unknown as { connection?: NetworkInformation }).connection;
     if (conn?.type) {
       this.state.type = conn.type;
     } else if (conn?.effectiveType) {

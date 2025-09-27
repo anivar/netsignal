@@ -3,24 +3,25 @@
  * Tree-shakable - no web dependencies
  */
 
-import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
-import { BaseNetSignal } from './base';
+import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
+import {
+  InvalidTimeoutError,
+  InvalidURLError,
+  NativeModuleError,
+  NetworkRequestError,
+} from '../errors';
 import type { ConnectionType, NetworkStatus, ProbeResult } from '../types';
-import { NativeModuleError, InvalidURLError, InvalidTimeoutError, NetworkRequestError } from '../errors';
+import { BaseNetSignal } from './base';
 
 export class NativeNetSignal extends BaseNetSignal {
   private native = NativeModules.NetSignal || null;
   private emitter = this.native ? new NativeEventEmitter(NativeModules.NetSignal) : null;
-  private listeners = new Map<string, any>();
+  private listeners = new Map<string, { remove: () => void }>();
 
   constructor() {
     super();
     if (!this.native) {
-      const platform = Platform?.OS || 'unknown';
-      console.warn(
-        `NetSignal: Native module not available on ${platform}. ` +
-        'Please ensure the native module is properly installed and linked.'
-      );
+      const _platform = Platform?.OS || 'unknown';
     }
   }
 
@@ -57,7 +58,7 @@ export class NativeNetSignal extends BaseNetSignal {
 
     try {
       return await this.native.probe(url, timeoutMs);
-    } catch (error: any) {
+    } catch (error) {
       throw new NetworkRequestError(url, error);
     }
   }

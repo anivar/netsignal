@@ -38,7 +38,7 @@ describe('WebNetSignal Implementation', () => {
       Promise.resolve({
         ok: true,
         status: 200,
-      } as Response)
+      } as Response),
     );
 
     webNetSignal = new WebNetSignal();
@@ -91,7 +91,7 @@ describe('WebNetSignal Implementation', () => {
           method: 'HEAD',
           mode: 'cors',
           cache: 'no-cache',
-        })
+        }),
       );
     });
 
@@ -135,8 +135,14 @@ describe('WebNetSignal Implementation', () => {
 
       // Verify unsubscribe removes listeners
       unsubscribe();
-      expect(global.window.removeEventListener).toHaveBeenCalledWith('online', expect.any(Function));
-      expect(global.window.removeEventListener).toHaveBeenCalledWith('offline', expect.any(Function));
+      expect(global.window.removeEventListener).toHaveBeenCalledWith(
+        'online',
+        expect.any(Function),
+      );
+      expect(global.window.removeEventListener).toHaveBeenCalledWith(
+        'offline',
+        expect.any(Function),
+      );
     });
 
     it('should return unsubscribe function', () => {
@@ -167,10 +173,12 @@ describe('NativeNetSignal Implementation', () => {
         NetSignal: {
           isConnected: jest.fn(() => true),
           getConnectionType: jest.fn(() => 'wifi'),
-          probe: jest.fn(() => Promise.resolve({
-            reachable: true,
-            responseTime: 50,
-          })),
+          probe: jest.fn(() =>
+            Promise.resolve({
+              reachable: true,
+              responseTime: 50,
+            }),
+          ),
           addListener: jest.fn(),
           removeListeners: jest.fn(),
         },
@@ -179,10 +187,14 @@ describe('NativeNetSignal Implementation', () => {
         addListener: jest.fn((event, callback) => {
           // Simulate immediate callback for testing
           if (event === 'NetSignal.NetworkChanged') {
-            setTimeout(() => callback({
-              isConnected: true,
-              type: 'wifi',
-            }), 0);
+            setTimeout(
+              () =>
+                callback({
+                  isConnected: true,
+                  type: 'wifi',
+                }),
+              0,
+            );
           }
           return { remove: jest.fn() };
         }),

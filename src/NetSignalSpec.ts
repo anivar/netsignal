@@ -12,7 +12,7 @@ export interface Spec extends TurboModule {
   getConnectionType(): string;
 
   // Asynchronous methods
-  probe(url: string, timeoutMs: number): Promise<Object>;
+  probe(url: string, timeoutMs: number): Promise<Record<string, unknown>>;
 
   // Event subscription (handled by NativeEventEmitter)
   addListener: (eventName: string) => void;

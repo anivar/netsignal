@@ -5,6 +5,8 @@
  */
 
 import { WebNetSignal } from './implementations/web';
+import type { NetworkStatus } from './types';
+
 export type { ConnectionType, NetworkStatus, ProbeResult } from './types';
 
 // Singleton instance
@@ -16,4 +18,4 @@ export default NetSignal;
 export const isConnected = () => NetSignal.isConnected();
 export const getType = () => NetSignal.getType();
 export const probe = (url: string, timeout?: number) => NetSignal.probe(url, timeout);
-export const onChange = (callback: (status: any) => void) => NetSignal.onChange(callback);
+export const onChange = (callback: (status: NetworkStatus) => void) => NetSignal.onChange(callback);
