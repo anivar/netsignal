@@ -59,7 +59,7 @@ export class NativeNetSignal extends BaseNetSignal {
     try {
       return await this.native.probe(url, timeoutMs);
     } catch (error) {
-      throw new NetworkRequestError(url, error);
+      throw new NetworkRequestError(url, error instanceof Error ? error : new Error(String(error)));
     }
   }
 

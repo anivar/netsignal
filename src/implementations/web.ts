@@ -88,10 +88,13 @@ export class WebNetSignal extends BaseNetSignal {
         responseTime: Date.now() - start,
       };
     } catch (error) {
+      const errorMessage = error instanceof Error
+        ? (error.name === 'AbortError' ? 'Request timeout' : error.message)
+        : 'Unknown error';
       return {
         reachable: false,
         responseTime: -1,
-        error: error.name === 'AbortError' ? 'Request timeout' : error.message,
+        error: errorMessage,
       };
     }
   }
@@ -132,11 +135,11 @@ export class WebNetSignal extends BaseNetSignal {
     });
 
     const conn = (navigator as unknown as { connection?: NetworkInformation }).connection;
-    if (conn) {
+    if (conn && conn.addEventListener && conn.removeEventListener) {
       const changeHandler = () => this.updateState();
       conn.addEventListener('change', changeHandler);
       this.globalHandlers.push(() => {
-        conn.removeEventListener('change', changeHandler);
+        conn.removeEventListener?.('change', changeHandler);
       });
     }
   }
@@ -165,7 +168,7 @@ export class WebNetSignal extends BaseNetSignal {
 
     const conn = (navigator as unknown as { connection?: NetworkInformation }).connection;
     if (conn?.type) {
-      this.state.type = conn.type;
+      this.state.type = (conn.type as ConnectionType) || 'unknown';
     } else if (conn?.effectiveType) {
       this.state.type = conn.effectiveType.includes('g') ? 'cellular' : 'wifi';
     } else {

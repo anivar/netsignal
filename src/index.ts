@@ -26,7 +26,7 @@ import type {
 const isWeb = typeof window !== 'undefined' && typeof window.document !== 'undefined';
 
 // Dynamic import based on platform
-let NetSignalImpl: typeof BaseNetSignal;
+let NetSignalImpl: new () => BaseNetSignal;
 
 if (isWeb) {
   // Web environment - load only web implementation
