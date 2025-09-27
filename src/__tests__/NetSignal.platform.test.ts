@@ -24,7 +24,7 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
         jest.doMock('react-native', () => ({
           Platform: { OS: 'web' },
           NativeModules: {},
-          NativeEventEmitter: jest.fn()
+          NativeEventEmitter: jest.fn(),
         }));
 
         // Mock browser APIs with proper mutable property
@@ -35,20 +35,20 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
               type: 'wifi',
               effectiveType: '4g',
               addEventListener: jest.fn(),
-              removeEventListener: jest.fn()
-            }
+              removeEventListener: jest.fn(),
+            },
           },
           writable: true,
-          configurable: true
+          configurable: true,
         });
 
         Object.defineProperty(global, 'window', {
           value: {
             addEventListener: jest.fn(),
-            removeEventListener: jest.fn()
+            removeEventListener: jest.fn(),
           },
           writable: true,
-          configurable: true
+          configurable: true,
         });
 
         global.fetch = jest.fn();
@@ -62,16 +62,16 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
               getConnectionType: jest.fn().mockReturnValue('wifi'),
               probe: jest.fn().mockResolvedValue({
                 reachable: true,
-                responseTime: 100
+                responseTime: 100,
               }),
               addListener: jest.fn(),
-              removeListeners: jest.fn()
-            }
+              removeListeners: jest.fn(),
+            },
           },
           NativeEventEmitter: jest.fn(() => ({
             addListener: jest.fn(() => ({ remove: jest.fn() })),
-            removeAllListeners: jest.fn()
-          }))
+            removeAllListeners: jest.fn(),
+          })),
         }));
       }
 
@@ -93,9 +93,9 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
       if (platformName === 'web') {
         // Clean up global mocks properly
         const g = global as any;
-        if ('navigator' in g) delete g.navigator;
-        if ('window' in g) delete g.window;
-        if ('fetch' in g) delete g.fetch;
+        if ('navigator' in g) {delete g.navigator;}
+        if ('window' in g) {delete g.window;}
+        if ('fetch' in g) {delete g.fetch;}
       }
     });
 
@@ -109,12 +109,12 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
           Object.defineProperty(global, 'navigator', {
             value: {
               onLine: false,
-              connection: null
+              connection: null,
             },
             writable: true,
-            configurable: true
+            configurable: true,
           });
-          
+
           jest.resetModules();
           const { WebNetSignal } = require('../implementations/web');
           const offlineNetSignal = new WebNetSignal();
@@ -151,9 +151,9 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
           // Mock AbortController
           global.AbortController = jest.fn().mockImplementation(() => ({
             abort: jest.fn(),
-            signal: {}
+            signal: {},
           }));
-          
+
           (global.fetch as jest.Mock).mockResolvedValue({ ok: true });
 
           const result = await NetSignal.probe('https://example.com');
@@ -164,7 +164,7 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
             expect.objectContaining({
               method: 'HEAD',
               mode: 'cors',
-              cache: 'no-cache'
+              cache: 'no-cache',
             })
           );
         });
@@ -232,11 +232,11 @@ const testPlatform = (platformName: 'ios' | 'android' | 'web') => {
           // Test with missing connection API (older browsers)
           Object.defineProperty(global, 'navigator', {
             value: {
-              onLine: true
+              onLine: true,
               // connection property intentionally omitted
             },
             writable: true,
-            configurable: true
+            configurable: true,
           });
           jest.resetModules();
           const LimitedNetSignal = require('../index').default;

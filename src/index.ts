@@ -1,17 +1,25 @@
 /**
  * NetSignal - Universal entry point with automatic platform detection
- * 
+ *
  * Build tools will tree-shake unused implementations:
  * - Web bundlers (webpack/vite) will use index.web.ts
  * - Metro (React Native) will use index.native.ts
  * - This file is the fallback with runtime detection
- * 
+ *
  * @author Anivar A Aravind <ping@anivar.net>
  * @license MIT
  * @copyright 2025
  */
 
-import type { ConnectionType, NetworkStatus, ProbeResult } from './types';
+import type {
+  ConnectionType,
+  NetworkStatus,
+  ProbeResult,
+  NetworkQuality,
+  NetworkQualityInfo,
+  ExtendedProbeResult,
+  ProbeOptions,
+} from './types';
 
 // Runtime platform detection (only used as fallback)
 const isWeb = typeof window !== 'undefined' && typeof window.document !== 'undefined';
@@ -38,7 +46,15 @@ const NetSignal = new NetSignalImpl();
 export default NetSignal;
 
 // Type exports
-export type { ConnectionType, NetworkStatus, ProbeResult };
+export type {
+  ConnectionType,
+  NetworkStatus,
+  ProbeResult,
+  NetworkQuality,
+  NetworkQualityInfo,
+  ExtendedProbeResult,
+  ProbeOptions,
+};
 
 // Convenience exports
 export const isConnected = () => NetSignal.isConnected();

@@ -4,7 +4,6 @@
  */
 
 import { WebNetSignal } from '../implementations/web';
-import { ConnectionType } from '../types';
 
 describe('WebNetSignal Implementation', () => {
   let webNetSignal: WebNetSignal;
@@ -18,27 +17,27 @@ describe('WebNetSignal Implementation', () => {
           type: 'wifi',
           effectiveType: '4g',
           addEventListener: jest.fn(),
-          removeEventListener: jest.fn()
-        }
+          removeEventListener: jest.fn(),
+        },
       },
       writable: true,
-      configurable: true
+      configurable: true,
     });
 
     Object.defineProperty(global, 'window', {
       value: {
         addEventListener: jest.fn(),
-        removeEventListener: jest.fn()
+        removeEventListener: jest.fn(),
       },
       writable: true,
-      configurable: true
+      configurable: true,
     });
 
     // Mock fetch
     global.fetch = jest.fn(() =>
       Promise.resolve({
         ok: true,
-        status: 200
+        status: 200,
       } as Response)
     );
 
@@ -56,7 +55,7 @@ describe('WebNetSignal Implementation', () => {
       // Test offline
       Object.defineProperty(global, 'navigator', {
         value: { onLine: false },
-        configurable: true
+        configurable: true,
       });
       const offlineNetSignal = new WebNetSignal();
       expect(offlineNetSignal.isConnected()).toBe(false);
@@ -72,7 +71,7 @@ describe('WebNetSignal Implementation', () => {
     it('should return unknown when connection API not available', () => {
       Object.defineProperty(global, 'navigator', {
         value: { onLine: true },
-        configurable: true
+        configurable: true,
       });
       const noConnectionNetSignal = new WebNetSignal();
       expect(noConnectionNetSignal.getType()).toBe('unknown');
@@ -82,7 +81,7 @@ describe('WebNetSignal Implementation', () => {
   describe('probe()', () => {
     it('should use fetch to test URL reachability', async () => {
       const result = await webNetSignal.probe('https://example.com');
-      
+
       expect(result.reachable).toBe(true);
       expect(typeof result.responseTime).toBe('number');
       expect(result.responseTime).toBeGreaterThanOrEqual(0);
@@ -91,16 +90,16 @@ describe('WebNetSignal Implementation', () => {
         expect.objectContaining({
           method: 'HEAD',
           mode: 'cors',
-          cache: 'no-cache'
+          cache: 'no-cache',
         })
       );
     });
 
     it('should handle probe failures', async () => {
       global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
-      
+
       const result = await webNetSignal.probe('https://example.com');
-      
+
       expect(result.reachable).toBe(false);
       expect(result.responseTime).toBe(-1);
       expect(result.error).toBe('Network error');
@@ -111,14 +110,14 @@ describe('WebNetSignal Implementation', () => {
       const abortMock = jest.fn();
       global.AbortController = jest.fn().mockImplementation(() => ({
         abort: abortMock,
-        signal: { aborted: false }
+        signal: { aborted: false },
       }));
-      
+
       // Mock fetch to reject when aborted
       global.fetch = jest.fn().mockRejectedValue(new Error('The user aborted a request.'));
-      
+
       const result = await webNetSignal.probe('https://example.com', 100);
-      
+
       expect(result.reachable).toBe(false);
       expect(result.responseTime).toBe(-1);
       expect(result.error).toContain('aborted');
@@ -145,7 +144,7 @@ describe('WebNetSignal Implementation', () => {
       const unsubscribe = webNetSignal.onChange(callback);
 
       expect(typeof unsubscribe).toBe('function');
-      
+
       // Call unsubscribe
       unsubscribe();
 
@@ -170,11 +169,11 @@ describe('NativeNetSignal Implementation', () => {
           getConnectionType: jest.fn(() => 'wifi'),
           probe: jest.fn(() => Promise.resolve({
             reachable: true,
-            responseTime: 50
+            responseTime: 50,
           })),
           addListener: jest.fn(),
-          removeListeners: jest.fn()
-        }
+          removeListeners: jest.fn(),
+        },
       },
       NativeEventEmitter: jest.fn().mockImplementation(() => ({
         addListener: jest.fn((event, callback) => {
@@ -182,13 +181,13 @@ describe('NativeNetSignal Implementation', () => {
           if (event === 'NetSignal.NetworkChanged') {
             setTimeout(() => callback({
               isConnected: true,
-              type: 'wifi'
+              type: 'wifi',
             }), 0);
           }
           return { remove: jest.fn() };
         }),
-        removeAllListeners: jest.fn()
-      }))
+        removeAllListeners: jest.fn(),
+      })),
     }));
 
     // Import after mocking
@@ -199,21 +198,21 @@ describe('NativeNetSignal Implementation', () => {
   it('should call native module for isConnected', () => {
     const nativeNetSignal = new NativeNetSignal();
     const result = nativeNetSignal.isConnected();
-    
+
     expect(result).toBe(true);
   });
 
   it('should call native module for getType', () => {
     const nativeNetSignal = new NativeNetSignal();
     const result = nativeNetSignal.getType();
-    
+
     expect(result).toBe('wifi');
   });
 
   it('should call native module for probe', async () => {
     const nativeNetSignal = new NativeNetSignal();
     const result = await nativeNetSignal.probe('https://example.com');
-    
+
     expect(result.reachable).toBe(true);
     expect(result.responseTime).toBe(50);
   });
@@ -222,12 +221,12 @@ describe('NativeNetSignal Implementation', () => {
     jest.resetModules();
     jest.doMock('react-native', () => ({
       NativeModules: {},
-      NativeEventEmitter: jest.fn()
+      NativeEventEmitter: jest.fn(),
     }));
 
     const { NativeNetSignal: NativeImpl } = require('../implementations/native');
     const nativeNetSignal = new NativeImpl();
-    
+
     expect(nativeNetSignal.isConnected()).toBe(false);
     expect(nativeNetSignal.getType()).toBe('unknown');
   });
@@ -239,12 +238,12 @@ describe('NetSignal Auto-Detection', () => {
     // Set up web environment
     Object.defineProperty(global, 'window', {
       value: { document: {} },
-      configurable: true
+      configurable: true,
     });
 
     jest.resetModules();
     const NetSignal = require('../index').default;
-    
+
     // Should have web implementation methods
     expect(typeof NetSignal.isConnected).toBe('function');
     expect(typeof NetSignal.getType).toBe('function');

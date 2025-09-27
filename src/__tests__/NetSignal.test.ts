@@ -3,8 +3,8 @@
  * Using latest React Native Testing Library patterns
  */
 
-import { NativeModules, NativeEventEmitter, Platform } from 'react-native';
-import NetSignal, { isConnected, getType, probe, onChange } from '../index';
+import { NativeModules, NativeEventEmitter } from 'react-native';
+import NetSignal, { getType, probe, onChange } from '../index';
 
 /// <reference path="./global.d.ts" />
 
@@ -16,16 +16,16 @@ jest.mock('react-native', () => ({
       getConnectionType: jest.fn(),
       probe: jest.fn(),
       addListener: jest.fn(),
-      removeListeners: jest.fn()
-    }
+      removeListeners: jest.fn(),
+    },
   },
   NativeEventEmitter: jest.fn(() => ({
     addListener: jest.fn(() => ({ remove: jest.fn() })),
-    removeAllListeners: jest.fn()
+    removeAllListeners: jest.fn(),
   })),
   Platform: {
-    OS: 'ios'
-  }
+    OS: 'ios',
+  },
 }));
 
 describe('NetSignal - Core API', () => {
@@ -51,7 +51,7 @@ describe('NetSignal - Core API', () => {
       jest.doMock('react-native', () => ({
         NativeModules: {},
         NativeEventEmitter: jest.fn(),
-        Platform: { OS: 'ios' }
+        Platform: { OS: 'ios' },
       }));
 
       // Re-import to get fresh instance
@@ -114,7 +114,7 @@ describe('NetSignal - Core API', () => {
     it('should probe URL and return success result', async () => {
       const mockResult = {
         reachable: true,
-        responseTime: 123
+        responseTime: 123,
       };
 
       (NativeModules.NetSignal.probe as jest.Mock).mockResolvedValue(mockResult);
@@ -129,7 +129,7 @@ describe('NetSignal - Core API', () => {
       const mockResult = {
         reachable: false,
         responseTime: -1,
-        error: 'Network timeout'
+        error: 'Network timeout',
       };
 
       (NativeModules.NetSignal.probe as jest.Mock).mockResolvedValue(mockResult);
@@ -144,7 +144,7 @@ describe('NetSignal - Core API', () => {
     it('should handle high latency areas (2-3 seconds)', async () => {
       const mockResult = {
         reachable: true,
-        responseTime: 2500
+        responseTime: 2500,
       };
 
       (NativeModules.NetSignal.probe as jest.Mock).mockResolvedValue(mockResult);
@@ -158,11 +158,7 @@ describe('NetSignal - Core API', () => {
     it('should handle native module errors', async () => {
       (NativeModules.NetSignal.probe as jest.Mock).mockRejectedValue(new Error('Native error'));
 
-      const result = await NetSignal.probe('https://example.com');
-
-      expect(result.reachable).toBe(false);
-      expect(result.responseTime).toBe(-1);
-      expect(result.error).toBe('Native error');
+      await expect(NetSignal.probe('https://example.com')).rejects.toThrow('Network request to "https://example.com" failed: Native error');
     });
   });
 
@@ -182,7 +178,7 @@ describe('NetSignal - Core API', () => {
         removeAllListeners: jest.fn(),
         emit: jest.fn(),
         listenerCount: jest.fn().mockReturnValue(0),
-        removeSubscription: jest.fn()
+        removeSubscription: jest.fn(),
       } as unknown as NativeEventEmitter));
 
       // Re-import to get fresh instance with mocked emitter
@@ -223,7 +219,7 @@ describe('NetSignal - Web Platform', () => {
     jest.doMock('react-native', () => ({
       Platform: { OS: 'web' },
       NativeModules: {}, // No native modules on web
-      NativeEventEmitter: jest.fn()
+      NativeEventEmitter: jest.fn(),
     }));
 
     // Mock web APIs
@@ -234,20 +230,20 @@ describe('NetSignal - Web Platform', () => {
           type: 'wifi',
           effectiveType: '4g',
           addEventListener: jest.fn(),
-          removeEventListener: jest.fn()
-        }
+          removeEventListener: jest.fn(),
+        },
       },
       writable: true,
-      configurable: true
+      configurable: true,
     });
 
     Object.defineProperty(global, 'window', {
       value: {
         addEventListener: jest.fn(),
-        removeEventListener: jest.fn()
+        removeEventListener: jest.fn(),
       },
       writable: true,
-      configurable: true
+      configurable: true,
     });
 
     global.fetch = jest.fn();
@@ -257,9 +253,9 @@ describe('NetSignal - Web Platform', () => {
     jest.resetModules();
     // Clean up global mocks
     const g = global as any;
-    if ('navigator' in g) delete g.navigator;
-    if ('window' in g) delete g.window;
-    if ('fetch' in g) delete g.fetch;
+    if ('navigator' in g) {delete g.navigator;}
+    if ('window' in g) {delete g.window;}
+    if ('fetch' in g) {delete g.fetch;}
   });
 
   it('should detect web connection status', () => {
@@ -275,12 +271,12 @@ describe('NetSignal - Web Platform', () => {
     // Mock fetch to return success with AbortController
     global.AbortController = jest.fn().mockImplementation(() => ({
       abort: jest.fn(),
-      signal: {}
+      signal: {},
     }));
-    
-    global.fetch = jest.fn().mockResolvedValue({ 
+
+    global.fetch = jest.fn().mockResolvedValue({
       ok: true,
-      status: 200
+      status: 200,
     });
 
     // Use web implementation directly
@@ -295,7 +291,7 @@ describe('NetSignal - Web Platform', () => {
       expect.objectContaining({
         method: 'HEAD',
         mode: 'cors',
-        cache: 'no-cache'
+        cache: 'no-cache',
       })
     );
   });
@@ -348,7 +344,7 @@ describe('NetSignal - Edge Cases', () => {
         registeredCallback = cb;
         return { remove: jest.fn() };
       }),
-      removeAllListeners: jest.fn()
+      removeAllListeners: jest.fn(),
     };
 
     jest.doMock('react-native', () => ({
@@ -358,11 +354,11 @@ describe('NetSignal - Edge Cases', () => {
           getConnectionType: jest.fn().mockReturnValue('wifi'),
           probe: jest.fn(),
           addListener: jest.fn(),
-          removeListeners: jest.fn()
-        }
+          removeListeners: jest.fn(),
+        },
       },
       NativeEventEmitter: jest.fn(() => mockEmitter),
-      Platform: { OS: 'ios' }
+      Platform: { OS: 'ios' },
     }));
 
     const FreshNetSignal = require('../index').default;
@@ -390,7 +386,7 @@ describe('NetSignal - Edge Cases', () => {
     jest.doMock('react-native', () => ({
       NativeModules: {}, // No NetSignal module
       NativeEventEmitter: jest.fn(),
-      Platform: { OS: 'ios' }
+      Platform: { OS: 'ios' },
     }));
 
     const FallbackNetSignal = require('../index').default;

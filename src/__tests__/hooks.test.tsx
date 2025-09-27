@@ -18,12 +18,12 @@ jest.mock('../index', () => {
       mockNetSignal._testCallback = callback;
       return jest.fn(); // Return unsubscribe function
     }),
-    _testCallback: null
+    _testCallback: null,
   };
 
   return {
     default: mockNetSignal,
-    __esModule: true
+    __esModule: true,
   };
 });
 
@@ -39,7 +39,7 @@ describe('useNetSignal Hook', () => {
 
     expect(result.current).toEqual({
       isConnected: true,
-      type: 'wifi'
+      type: 'wifi',
     });
   });
 
@@ -76,7 +76,7 @@ describe('useNetSignal Hook', () => {
       { isConnected: false, type: 'none' as const },
       { isConnected: true, type: 'cellular' as const },
       { isConnected: true, type: 'wifi' as const },
-      { isConnected: true, type: 'ethernet' as const }
+      { isConnected: true, type: 'ethernet' as const },
     ];
 
     for (const change of changes) {
@@ -109,7 +109,7 @@ describe('useNetSignal Hook', () => {
 
     expect(result.current).toEqual({
       isConnected: false,
-      type: 'none'
+      type: 'none',
     });
   });
 
@@ -137,7 +137,7 @@ describe('useNetSignal Hook', () => {
       act(() => {
         registeredCallback({
           isConnected: i % 2 === 0,
-          type: i % 2 === 0 ? 'wifi' : 'none'
+          type: i % 2 === 0 ? 'wifi' : 'none',
         });
       });
     }
@@ -157,12 +157,12 @@ describe('useNetSignal Hook', () => {
     const { result } = renderHook(() => useNetSignal(), {
       wrapper: ({ children }) => (
         <React.StrictMode>{children}</React.StrictMode>
-      )
+      ),
     });
 
     expect(result.current).toEqual({
       isConnected: true,
-      type: 'wifi'
+      type: 'wifi',
     });
 
     // In StrictMode, effects may run twice in development
@@ -194,9 +194,6 @@ describe('useNetSignal - Performance', () => {
   it('should batch state updates efficiently', async () => {
     const { result } = renderHook(() => useNetSignal());
 
-    let updateCount = 0;
-    const originalState = result.current;
-
     // React 18+ automatic batching
     act(() => {
       // Access test callback through the mock interface
@@ -214,7 +211,7 @@ describe('useNetSignal - Performance', () => {
       // Should only see final state
       expect(result.current).toEqual({
         isConnected: true,
-        type: 'wifi'
+        type: 'wifi',
       });
     });
   });

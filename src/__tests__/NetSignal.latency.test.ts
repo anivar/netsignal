@@ -28,13 +28,13 @@ describe('NetSignal - High Latency Scenarios', () => {
             getConnectionType: jest.fn().mockReturnValue('cellular'), // Often cellular in remote areas
             probe: jest.fn(),
             addListener: jest.fn(),
-            removeListeners: jest.fn()
-          }
+            removeListeners: jest.fn(),
+          },
         },
         NativeEventEmitter: jest.fn(() => ({
           addListener: jest.fn(() => ({ remove: jest.fn() })),
-          removeAllListeners: jest.fn()
-        }))
+          removeAllListeners: jest.fn(),
+        })),
       }));
     });
 
@@ -60,7 +60,7 @@ describe('NetSignal - High Latency Scenarios', () => {
             resolve({
               reachable: true,
               responseTime: 3000, // 3 seconds
-              error: undefined
+              error: undefined,
             });
           }, 3000);
         });
@@ -88,7 +88,7 @@ describe('NetSignal - High Latency Scenarios', () => {
             resolve({
               reachable: true,
               responseTime: 7000, // 7 seconds
-              error: undefined
+              error: undefined,
             });
           }, 7000);
         });
@@ -113,7 +113,7 @@ describe('NetSignal - High Latency Scenarios', () => {
             resolve({
               reachable: true,
               responseTime: 9000, // 9 seconds
-              error: undefined
+              error: undefined,
             });
           }, 9000);
         });
@@ -137,7 +137,7 @@ describe('NetSignal - High Latency Scenarios', () => {
             resolve({
               reachable: true,
               responseTime: 4999, // Just under 5 seconds
-              error: undefined
+              error: undefined,
             });
           }, 4999);
         });
@@ -161,7 +161,7 @@ describe('NetSignal - High Latency Scenarios', () => {
           resolve({
             reachable: false,
             responseTime: -1,
-            error: 'Request timeout'
+            error: 'Request timeout',
           });
         });
       });
@@ -189,7 +189,7 @@ describe('NetSignal - High Latency Scenarios', () => {
             setTimeout(() => {
               resolve({
                 reachable: true,
-                responseTime: 3500
+                responseTime: 3500,
               });
             }, 3500);
           } else {
@@ -197,7 +197,7 @@ describe('NetSignal - High Latency Scenarios', () => {
             resolve({
               reachable: false,
               responseTime: -1,
-              error: 'Network unreachable'
+              error: 'Network unreachable',
             });
           }
         });
@@ -226,13 +226,13 @@ describe('NetSignal - High Latency Scenarios', () => {
             getConnectionType: jest.fn().mockReturnValue('cellular'), // 2G/3G often has high latency
             probe: jest.fn(),
             addListener: jest.fn(),
-            removeListeners: jest.fn()
-          }
+            removeListeners: jest.fn(),
+          },
         },
         NativeEventEmitter: jest.fn(() => ({
           addListener: jest.fn(() => ({ remove: jest.fn() })),
-          removeAllListeners: jest.fn()
-        }))
+          removeAllListeners: jest.fn(),
+        })),
       }));
 
       const SlowNetSignal = require('../index').default;
@@ -251,16 +251,16 @@ describe('NetSignal - High Latency Scenarios', () => {
             getConnectionType: jest.fn().mockReturnValue('unknown'), // Satellite often shows as unknown
             probe: jest.fn().mockResolvedValue({
               reachable: true,
-              responseTime: 650 // Typical satellite latency
+              responseTime: 650, // Typical satellite latency
             }),
             addListener: jest.fn(),
-            removeListeners: jest.fn()
-          }
+            removeListeners: jest.fn(),
+          },
         },
         NativeEventEmitter: jest.fn(() => ({
           addListener: jest.fn(() => ({ remove: jest.fn() })),
-          removeAllListeners: jest.fn()
-        }))
+          removeAllListeners: jest.fn(),
+        })),
       }));
 
       const SatelliteNetSignal = require('../index').default;
@@ -281,16 +281,16 @@ describe('NetSignal - High Latency Scenarios', () => {
             probe: jest.fn().mockResolvedValue({
               reachable: false,
               responseTime: -1,
-              error: 'Host unreachable'
+              error: 'Host unreachable',
             }),
             addListener: jest.fn(),
-            removeListeners: jest.fn()
-          }
+            removeListeners: jest.fn(),
+          },
         },
         NativeEventEmitter: jest.fn(() => ({
           addListener: jest.fn(() => ({ remove: jest.fn() })),
-          removeAllListeners: jest.fn()
-        }))
+          removeAllListeners: jest.fn(),
+        })),
       }));
 
       const LeanNetSignal = require('../index').default;
@@ -319,13 +319,13 @@ describe('NetSignal - High Latency Scenarios', () => {
               .mockResolvedValueOnce({ reachable: false, responseTime: -1, error: 'Timeout' })
               .mockResolvedValueOnce({ reachable: true, responseTime: 2500 }),
             addListener: jest.fn(),
-            removeListeners: jest.fn()
-          }
+            removeListeners: jest.fn(),
+          },
         },
         NativeEventEmitter: jest.fn(() => ({
           addListener: jest.fn(() => ({ remove: jest.fn() })),
-          removeAllListeners: jest.fn()
-        }))
+          removeAllListeners: jest.fn(),
+        })),
       }));
 
       const AppNetSignal = require('../index').default;
@@ -361,13 +361,13 @@ describe('NetSignal - High Latency Scenarios', () => {
             getConnectionType: jest.fn(() => isConnected ? 'cellular' : 'none'),
             probe: jest.fn(),
             addListener: jest.fn(),
-            removeListeners: jest.fn()
-          }
+            removeListeners: jest.fn(),
+          },
         },
         NativeEventEmitter: jest.fn(() => ({
           addListener: jest.fn(() => ({ remove: jest.fn() })),
-          removeAllListeners: jest.fn()
-        }))
+          removeAllListeners: jest.fn(),
+        })),
       }));
 
       const FlappingNetSignal = require('../index').default;
@@ -394,13 +394,13 @@ describe('NetSignal - High Latency Scenarios', () => {
             getConnectionType: jest.fn().mockReturnValue('cellular'),
             probe: jest.fn(),
             addListener: jest.fn(),
-            removeListeners: jest.fn()
-          }
+            removeListeners: jest.fn(),
+          },
         },
         NativeEventEmitter: jest.fn(() => ({
           addListener: jest.fn(() => ({ remove: jest.fn() })),
-          removeAllListeners: jest.fn()
-        }))
+          removeAllListeners: jest.fn(),
+        })),
       }));
 
       const PerformantNetSignal = require('../index').default;
@@ -418,7 +418,7 @@ describe('NetSignal - High Latency Scenarios', () => {
       const avgTime = timings.reduce((a, b) => a + b, 0) / timings.length;
       const maxTime = Math.max(...timings);
 
-      expect(avgTime).toBeLessThan(1);   // Average < 1ms  
+      expect(avgTime).toBeLessThan(1);   // Average < 1ms
       expect(maxTime).toBeLessThan(5);   // Max < 5ms (more realistic for test environment)
     });
   });
