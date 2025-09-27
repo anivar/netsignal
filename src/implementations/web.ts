@@ -88,9 +88,12 @@ export class WebNetSignal extends BaseNetSignal {
         responseTime: Date.now() - start,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error
-        ? (error.name === 'AbortError' ? 'Request timeout' : error.message)
-        : 'Unknown error';
+      const errorMessage =
+        error instanceof Error
+          ? error.name === 'AbortError'
+            ? 'Request timeout'
+            : error.message
+          : 'Unknown error';
       return {
         reachable: false,
         responseTime: -1,
@@ -135,7 +138,7 @@ export class WebNetSignal extends BaseNetSignal {
     });
 
     const conn = (navigator as unknown as { connection?: NetworkInformation }).connection;
-    if (conn && conn.addEventListener && conn.removeEventListener) {
+    if (conn?.addEventListener && conn.removeEventListener) {
       const changeHandler = () => this.updateState();
       conn.addEventListener('change', changeHandler);
       this.globalHandlers.push(() => {
