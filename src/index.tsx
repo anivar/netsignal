@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import NativeNetSignal from './NativeNetSignal';
 
@@ -80,7 +80,9 @@ class NetSignalModule {
   }
 
   private handleEvent = (event: NetworkChangeEvent) => {
-    this.listeners.forEach(listener => listener(event));
+    for (const listener of this.listeners) {
+      listener(event);
+    }
   };
 }
 
@@ -92,7 +94,7 @@ export function useNetworkState(): NetworkState {
   useEffect(() => {
     setState(NetSignal.getSimpleSummary());
 
-    return NetSignal.addEventListener((event) => {
+    return NetSignal.addEventListener(event => {
       setState({
         connected: event.isConnected,
         type: event.type as ConnectionType,

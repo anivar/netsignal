@@ -18,6 +18,9 @@
   ],
   "scripts": {
     "typescript": "tsc --noEmit",
+    "lint": "biome lint .",
+    "format": "biome format . --write",
+    "check": "biome check .",
     "prepare": "bob build",
     "release": "release-it"
   },
@@ -30,23 +33,23 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/netsignal.git"
+    "url": "git+https://github.com/anivar/netsignal.git"
   },
-  "author": "Your Name",
+  "author": "Anivar Aravind",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/yourusername/netsignal/issues"
+    "url": "https://github.com/anivar/netsignal/issues"
   },
-  "homepage": "https://github.com/yourusername/netsignal#readme",
+  "homepage": "https://github.com/anivar/netsignal#readme",
   "peerDependencies": {
     "react": "*",
     "react-native": ">=0.80.0"
   },
   "devDependencies": {
-    "@react-native/eslint-config": "^0.74.0",
+    "@biomejs/biome": "^1.4.1",
     "@types/react": "^18.2.44",
     "react": "18.3.1",
-    "react-native": "0.80.0",
+    "react-native": "0.76.0",
     "react-native-builder-bob": "^0.23.0",
     "release-it": "^17.0.0",
     "typescript": "^5.3.3"
