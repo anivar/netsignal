@@ -7,6 +7,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.facebook.react.turbomodule.core.interfaces.TurboModule
@@ -96,7 +97,7 @@ class NetSignalTurboModule(private val reactContext: ReactApplicationContext) :
         return map
     }
 
-    override fun getAllActiveConnections(): WritableMap {
+    override fun getAllActiveConnections(promise: Promise) {
         val result = Arguments.createMap()
         val connections = Arguments.createArray()
 
@@ -130,7 +131,7 @@ class NetSignalTurboModule(private val reactContext: ReactApplicationContext) :
         }
 
         result.putArray("connections", connections)
-        return result
+        promise.resolve(result)
     }
 
     @Synchronized
