@@ -19,7 +19,8 @@
   "scripts": {
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "typescript": "tsc --noEmit",
+    "lint": "biome check src/ __tests__/",
+    "lint:fix": "biome check --fix src/ __tests__/",
     "prepare": "bob build",
     "release": "release-it"
   },
@@ -52,6 +53,7 @@
     "jest": "^29.7.0",
     "react": "^19.1.0",
     "react-native": "0.80.0",
+    "@biomejs/biome": "^2.0.0",
     "react-native-builder-bob": "^0.23.0",
     "release-it": "^17.0.0",
     "typescript": "^5.3.3"

@@ -1,5 +1,5 @@
-import type { TurboModule } from 'react-native';
-import { TurboModuleRegistry } from 'react-native';
+import type { TurboModule } from "react-native";
+import { TurboModuleRegistry } from "react-native";
 
 export interface Spec extends TurboModule {
   isConnected(): boolean;
@@ -23,4 +23,4 @@ export interface Spec extends TurboModule {
   removeListeners(count: number): void;
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>('NetSignal');
+export default TurboModuleRegistry.getEnforcing<Spec>("NetSignal");

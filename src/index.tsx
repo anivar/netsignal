@@ -1,8 +1,13 @@
-import { useSyncExternalStore } from 'react';
-import { DeviceEventEmitter } from 'react-native';
-import NativeNetSignal from './NativeNetSignal';
+import { useSyncExternalStore } from "react";
+import { DeviceEventEmitter } from "react-native";
+import NativeNetSignal from "./NativeNetSignal";
 
-export type ConnectionType = 'wifi' | 'cellular' | 'ethernet' | 'none' | 'unknown';
+export type ConnectionType =
+  | "wifi"
+  | "cellular"
+  | "ethernet"
+  | "none"
+  | "unknown";
 
 export interface NetworkState {
   connected: boolean;
@@ -27,7 +32,7 @@ export type NetworkChangeEvent = {
 
 let currentState: NetworkState = {
   connected: false,
-  type: 'unknown',
+  type: "unknown",
   connectionCount: 0,
   multipleConnections: false,
 };
@@ -40,7 +45,7 @@ let nativeListenerCount = 0;
 export function _resetForTesting(): void {
   currentState = {
     connected: false,
-    type: 'unknown',
+    type: "unknown",
     connectionCount: 0,
     multipleConnections: false,
   };
@@ -71,7 +76,9 @@ function initState(): void {
 }
 
 function notifyStoreListeners(): void {
-  storeListeners.forEach((listener) => listener());
+  for (const listener of storeListeners) {
+    listener();
+  }
 }
 
 function handleNativeEvent(event: NetworkChangeEvent): void {
@@ -86,9 +93,9 @@ function handleNativeEvent(event: NetworkChangeEvent): void {
 
 function startNativeListener(): void {
   if (nativeSubscription === null) {
-    NativeNetSignal.addListener('netSignalChange');
+    NativeNetSignal.addListener("netSignalChange");
     const subscription = DeviceEventEmitter.addListener(
-      'netSignalChange',
+      "netSignalChange",
       handleNativeEvent,
     );
     nativeSubscription = () => {
@@ -165,7 +172,7 @@ class NetSignalModule {
     startNativeListener();
 
     const emitterSubscription = DeviceEventEmitter.addListener(
-      'netSignalChange',
+      "netSignalChange",
       listener,
     );
 
@@ -185,17 +192,11 @@ export function useNetworkState(): NetworkState {
 }
 
 export function useIsConnected(): boolean {
-  return useSyncExternalStore(
-    subscribe,
-    () => getSnapshot().connected,
-  );
+  return useSyncExternalStore(subscribe, () => getSnapshot().connected);
 }
 
 export function useConnectionType(): ConnectionType {
-  return useSyncExternalStore(
-    subscribe,
-    () => getSnapshot().type,
-  );
+  return useSyncExternalStore(subscribe, () => getSnapshot().type);
 }
 
 export default NetSignal;

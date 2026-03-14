@@ -1,9 +1,12 @@
-import React from 'react';
-import { Text, View } from 'react-native';
-import { render, act } from '@testing-library/react-native';
-import { DeviceEventEmitter } from 'react-native';
-import { useNetworkState, useIsConnected, useConnectionType, _resetForTesting } from '../src/index';
-import NativeNetSignal from '../src/NativeNetSignal';
+import { act, render } from "@testing-library/react-native";
+import { DeviceEventEmitter, Text, View } from "react-native";
+import {
+  _resetForTesting,
+  useConnectionType,
+  useIsConnected,
+  useNetworkState,
+} from "../src/index";
+import NativeNetSignal from "../src/NativeNetSignal";
 
 const mockNative = NativeNetSignal as jest.Mocked<typeof NativeNetSignal>;
 
@@ -12,7 +15,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockNative.getSimpleSummary.mockReturnValue({
     connected: true,
-    type: 'wifi',
+    type: "wifi",
     connectionCount: 1,
     multipleConnections: false,
   });
@@ -50,87 +53,87 @@ function MultiHookDisplay() {
   );
 }
 
-describe('useNetworkState', () => {
-  it('returns initial state from getSimpleSummary', () => {
+describe("useNetworkState", () => {
+  it("returns initial state from getSimpleSummary", () => {
     const { getByTestId } = render(<NetworkStateDisplay />);
-    expect(getByTestId('connected').props.children).toBe('true');
-    expect(getByTestId('type').props.children).toBe('wifi');
-    expect(getByTestId('count').props.children).toBe('1');
+    expect(getByTestId("connected").props.children).toBe("true");
+    expect(getByTestId("type").props.children).toBe("wifi");
+    expect(getByTestId("count").props.children).toBe("1");
   });
 
-  it('updates state when network event fires', () => {
+  it("updates state when network event fires", () => {
     const { getByTestId } = render(<NetworkStateDisplay />);
 
     act(() => {
-      DeviceEventEmitter.emit('netSignalChange', {
+      DeviceEventEmitter.emit("netSignalChange", {
         isConnected: false,
-        type: 'none',
+        type: "none",
         connectionCount: 0,
       });
     });
 
-    expect(getByTestId('connected').props.children).toBe('false');
-    expect(getByTestId('type').props.children).toBe('none');
-    expect(getByTestId('count').props.children).toBe('0');
+    expect(getByTestId("connected").props.children).toBe("false");
+    expect(getByTestId("type").props.children).toBe("none");
+    expect(getByTestId("count").props.children).toBe("0");
   });
 
-  it('cleans up subscription on unmount', () => {
+  it("cleans up subscription on unmount", () => {
     const { unmount } = render(<NetworkStateDisplay />);
     unmount();
     expect(mockNative.removeListeners).toHaveBeenCalled();
   });
 });
 
-describe('useIsConnected', () => {
-  it('returns boolean connected state', () => {
+describe("useIsConnected", () => {
+  it("returns boolean connected state", () => {
     const { getByTestId } = render(<IsConnectedDisplay />);
-    expect(getByTestId('connected').props.children).toBe('true');
+    expect(getByTestId("connected").props.children).toBe("true");
   });
 
-  it('updates when network changes', () => {
+  it("updates when network changes", () => {
     const { getByTestId } = render(<IsConnectedDisplay />);
 
     act(() => {
-      DeviceEventEmitter.emit('netSignalChange', {
+      DeviceEventEmitter.emit("netSignalChange", {
         isConnected: false,
-        type: 'none',
+        type: "none",
         connectionCount: 0,
       });
     });
 
-    expect(getByTestId('connected').props.children).toBe('false');
+    expect(getByTestId("connected").props.children).toBe("false");
   });
 });
 
-describe('useConnectionType', () => {
-  it('returns connection type string', () => {
+describe("useConnectionType", () => {
+  it("returns connection type string", () => {
     const { getByTestId } = render(<ConnectionTypeDisplay />);
-    expect(getByTestId('type').props.children).toBe('wifi');
+    expect(getByTestId("type").props.children).toBe("wifi");
   });
 
-  it('updates when network changes', () => {
+  it("updates when network changes", () => {
     const { getByTestId } = render(<ConnectionTypeDisplay />);
 
     act(() => {
-      DeviceEventEmitter.emit('netSignalChange', {
+      DeviceEventEmitter.emit("netSignalChange", {
         isConnected: true,
-        type: 'cellular',
+        type: "cellular",
         connectionCount: 1,
       });
     });
 
-    expect(getByTestId('type').props.children).toBe('cellular');
+    expect(getByTestId("type").props.children).toBe("cellular");
   });
 });
 
-describe('Shared subscription', () => {
-  it('multiple hooks in same component use single native subscription', () => {
+describe("Shared subscription", () => {
+  it("multiple hooks in same component use single native subscription", () => {
     render(<MultiHookDisplay />);
     const addListenerCalls = mockNative.addListener.mock.calls.length;
     expect(addListenerCalls).toBe(1);
   });
 
-  it('subscription cleans up when all consumers unmount', () => {
+  it("subscription cleans up when all consumers unmount", () => {
     const { unmount } = render(<MultiHookDisplay />);
     unmount();
     expect(mockNative.removeListeners).toHaveBeenCalled();
