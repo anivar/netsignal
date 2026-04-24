@@ -22,6 +22,7 @@
     "lint": "biome check src/ __tests__/",
     "lint:fix": "biome check --fix src/ __tests__/",
     "prepare": "bob build",
+    "prepublishOnly": "bun run typecheck && bun run lint && jest && bob build",
     "release": "release-it"
   },
   "keywords": [

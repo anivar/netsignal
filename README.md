@@ -76,6 +76,8 @@ const unsubscribe = NetSignal.addEventListener((event) => {
 });
 ```
 
+`addEventListener` runs in parallel with the hook store — if you also use `useNetworkState` (or a sibling hook), both your callback and the hook will fire on every native event. Pick one per component to avoid redundant work.
+
 ### React Hooks
 
 ```typescript
