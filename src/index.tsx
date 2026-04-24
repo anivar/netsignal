@@ -24,7 +24,7 @@ export interface Connection {
 
 export type NetworkChangeEvent = {
   isConnected: boolean;
-  type: string;
+  type: ConnectionType;
   connectionCount: number;
 };
 
@@ -84,7 +84,7 @@ function notifyStoreListeners(): void {
 function handleNativeEvent(event: NetworkChangeEvent): void {
   currentState = {
     connected: event.isConnected,
-    type: event.type as ConnectionType,
+    type: event.type,
     connectionCount: event.connectionCount,
     multipleConnections: event.connectionCount > 1,
   };
