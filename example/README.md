@@ -1,5 +1,7 @@
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
+> **Note:** NetSignal is **Android only**. The `ios/` folder and `npm run ios` script below are leftover scaffolding from `react-native init` — the library will not load on iOS. Run `npm run android` to try the demo.
+
 # Getting Started
 
 > **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
