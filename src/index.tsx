@@ -42,6 +42,7 @@ const storeListeners = new Set<() => void>();
 let nativeSubscription: (() => void) | null = null;
 let nativeListenerCount = 0;
 
+/** @internal Only for unit tests; not part of the stable API. */
 export function _resetForTesting(): void {
   currentState = {
     connected: false,

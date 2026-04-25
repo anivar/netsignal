@@ -5,7 +5,6 @@
     "lib": ["es2017"],
     "jsx": "react-native",
     "declaration": true,
-    "outDir": "./lib",
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
