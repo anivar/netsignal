@@ -1,5 +1,15 @@
 # NetSignal
 
+[![npm version](https://img.shields.io/npm/v/netsignal.svg)](https://www.npmjs.com/package/netsignal)
+[![npm downloads](https://img.shields.io/npm/dm/netsignal.svg)](https://www.npmjs.com/package/netsignal)
+[![CI](https://github.com/anivar/netsignal/actions/workflows/ci.yml/badge.svg)](https://github.com/anivar/netsignal/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![React Native](https://img.shields.io/badge/React%20Native-0.80+-61DAFB?logo=react)](https://reactnative.dev)
+[![New Architecture](https://img.shields.io/badge/New%20Architecture-required-blueviolet)](https://reactnative.dev/docs/the-new-architecture/landing-page)
+[![Platform](https://img.shields.io/badge/platform-Android-3DDC84?logo=android&logoColor=white)](#requirements)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/netsignal)](https://bundlephobia.com/package/netsignal)
+
 Ultra-fast network state for React Native 0.80+ (New Architecture Only, Android)
 
 **0.3ms latency | TurboModule powered | ~300 lines total**
