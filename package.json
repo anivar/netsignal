@@ -1,6 +1,6 @@
 {
   "name": "netsignal",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Ultra-fast network state for React Native 0.80+ (New Architecture)",
   "main": "lib/commonjs/index.js",
   "module": "lib/module/index.js",
