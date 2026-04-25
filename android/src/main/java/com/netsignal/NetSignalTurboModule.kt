@@ -209,7 +209,8 @@ class NetSignalTurboModule(private val reactContext: ReactApplicationContext) :
         }
     }
 
-    override fun onCatalystInstanceDestroy() {
+    override fun invalidate() {
+        super.invalidate()
         stopListening()
         listenerCount.set(0)
     }
