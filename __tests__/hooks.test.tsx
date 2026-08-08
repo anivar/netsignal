@@ -1,6 +1,6 @@
 import { act, render } from "@testing-library/react-native";
 import { DeviceEventEmitter, Text, View } from "react-native";
-import {
+import NetSignal, {
   _resetForTesting,
   useConnectionType,
   useIsConnected,
@@ -8,7 +8,9 @@ import {
 } from "../src/index";
 import NativeNetSignal from "../src/NativeNetSignal";
 
-const mockNative = NativeNetSignal as jest.Mocked<typeof NativeNetSignal>;
+const mockNative = NativeNetSignal as jest.Mocked<
+  NonNullable<typeof NativeNetSignal>
+>;
 
 beforeEach(() => {
   _resetForTesting();
@@ -137,5 +139,76 @@ describe("Shared subscription", () => {
     const { unmount } = render(<MultiHookDisplay />);
     unmount();
     expect(mockNative.removeListeners).toHaveBeenCalled();
+  });
+});
+
+describe("Regressions", () => {
+  it("does not re-render when an event repeats the current state", () => {
+    let renders = 0;
+    function CountingDisplay() {
+      renders++;
+      const state = useNetworkState();
+      return <Text testID="type">{state.type}</Text>;
+    }
+
+    render(<CountingDisplay />);
+    const before = renders;
+
+    // Android emits onCapabilitiesChanged for signal-strength and metering
+    // changes; the observable state is unchanged.
+    act(() => {
+      DeviceEventEmitter.emit("netSignalChange", {
+        isConnected: true,
+        type: "wifi",
+        connectionCount: 1,
+      });
+    });
+
+    expect(renders).toBe(before);
+
+    act(() => {
+      DeviceEventEmitter.emit("netSignalChange", {
+        isConnected: true,
+        type: "cellular",
+        connectionCount: 1,
+      });
+    });
+
+    expect(renders).toBeGreaterThan(before);
+  });
+
+  it("re-reads the native snapshot when a consumer mounts after teardown", () => {
+    const { unmount } = render(<ConnectionTypeDisplay />);
+    unmount();
+
+    mockNative.getSimpleSummary.mockReturnValue({
+      connected: true,
+      type: "cellular",
+      connectionCount: 2,
+      multipleConnections: true,
+    });
+
+    const { getByTestId } = render(<ConnectionTypeDisplay />);
+    expect(getByTestId("type").props.children).toBe("cellular");
+  });
+
+  it("ignores a second unsubscribe instead of tearing down for others", () => {
+    const unsubscribeTwice = NetSignal.addEventListener(() => {});
+    const { getByTestId } = render(<ConnectionTypeDisplay />);
+
+    unsubscribeTwice();
+    unsubscribeTwice();
+
+    expect(mockNative.removeListeners).not.toHaveBeenCalled();
+
+    act(() => {
+      DeviceEventEmitter.emit("netSignalChange", {
+        isConnected: true,
+        type: "ethernet",
+        connectionCount: 1,
+      });
+    });
+
+    expect(getByTestId("type").props.children).toBe("ethernet");
   });
 });

@@ -196,9 +196,15 @@ class NetSignalTurboModule(private val reactContext: ReactApplicationContext) :
 
     private fun sendEvent() {
         try {
+            val connected = isConnected()
             val params = Arguments.createMap()
-            params.putBoolean("isConnected", isConnected())
-            params.putString("type", getConnectionType())
+            params.putBoolean("isConnected", connected)
+            // The same normalisation getSimpleSummary applies. A transport can be
+            // up without NET_CAPABILITY_INTERNET (captive portal, Wi-Fi with no
+            // route), and reporting "wifi" next to isConnected=false here while
+            // the snapshot reported "none" made the two paths disagree about one
+            // state depending only on which produced it.
+            params.putString("type", if (connected) getConnectionType() else "none")
             params.putDouble("connectionCount", getActiveConnectionCount())
 
             reactContext
