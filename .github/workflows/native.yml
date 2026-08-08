@@ -42,7 +42,7 @@ jobs:
       # needs its devDependencies present. Install them first.
       - name: Build the library
         working-directory: lib
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Link the library
         working-directory: HostApp
@@ -84,7 +84,7 @@ jobs:
 
       - name: Build the library
         working-directory: lib
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Link the library
         working-directory: HostApp
