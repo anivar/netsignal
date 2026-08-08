@@ -38,6 +38,12 @@ jobs:
           npx --yes @react-native-community/cli@latest init HostApp \
             --version 0.86.2 --skip-install --skip-git-init --install-pods false
 
+      # `npm install ../lib` runs the library's own `prepare` (bob build), which
+      # needs its devDependencies present. Install them first.
+      - name: Build the library
+        working-directory: lib
+        run: npm ci
+
       - name: Link the library
         working-directory: HostApp
         run: |
@@ -75,6 +81,10 @@ jobs:
         run: |
           npx --yes @react-native-community/cli@latest init HostApp \
             --version 0.86.2 --skip-install --skip-git-init --install-pods false
+
+      - name: Build the library
+        working-directory: lib
+        run: npm ci
 
       - name: Link the library
         working-directory: HostApp
