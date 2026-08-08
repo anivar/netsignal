@@ -1,0 +1,113 @@
+name: Native
+
+# Compiles the Kotlin, ObjC++ and Swift. The existing CI runs typecheck, lint,
+# tests and the bob build — all of which pass whether or not the native code
+# would build at all. A sibling package in this account shipped five releases
+# with an Android module that was never linked and iOS methods that JavaScript
+# could not call, because nothing ever compiled them.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: lib
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      # The library module cannot build alone — it reads compileSdkVersion from
+      # rootProject.ext — so it needs a host app around it.
+      - name: Generate host app
+        run: |
+          npx --yes @react-native-community/cli@latest init HostApp \
+            --version 0.86.2 --skip-install --skip-git-init --install-pods false
+
+      - name: Link the library
+        working-directory: HostApp
+        run: |
+          npm install
+          npm install ../lib
+
+      - name: Assemble
+        working-directory: HostApp/android
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace | tee /tmp/gradle.log
+
+      # A host app that builds without including this library proves nothing.
+      - name: Assert the library was actually compiled
+        run: |
+          if ! grep -qE 'Task :netsignal:compile.*Kotlin' /tmp/gradle.log; then
+            echo "::error::The host app built without compiling this library."
+            echo "::error::Autolinking did not pick it up, so this run verified nothing."
+            echo "Gradle tasks that did run:"
+            grep -oE '> Task :[^ ]+' /tmp/gradle.log | sort -u
+            exit 1
+          fi
+          grep -oE '> Task :netsignal:[^ ]+' /tmp/gradle.log | sort -u
+
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: lib
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Generate host app
+        run: |
+          npx --yes @react-native-community/cli@latest init HostApp \
+            --version 0.86.2 --skip-install --skip-git-init --install-pods false
+
+      - name: Link the library
+        working-directory: HostApp
+        run: |
+          npm install
+          npm install ../lib
+
+      - name: Pod install
+        working-directory: HostApp/ios
+        run: RCT_NEW_ARCH_ENABLED=1 pod install
+
+      # Raw output, not xcpretty: xcpretty discards compiler diagnostics it does
+      # not recognise, which is useless for the one job whose purpose is to
+      # surface them.
+      - name: Build for simulator
+        working-directory: HostApp/ios
+        run: |
+          set -o pipefail
+          xcodebuild -workspace HostApp.xcworkspace -scheme HostApp \
+            -sdk iphonesimulator -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            build CODE_SIGNING_ALLOWED=NO 2>&1 | tee /tmp/xcodebuild.log || {
+              echo "::group::Compiler diagnostics"
+              grep -E '(error|warning):' /tmp/xcodebuild.log | sort -u || true
+              echo "::endgroup::"
+              exit 1
+            }
+
+      - name: Assert this library's sources were compiled
+        run: |
+          if ! grep -qiE 'CompileC .*(NetSignal|netsignal).*\.o' /tmp/xcodebuild.log; then
+            echo "::error::No source file from this library was compiled."
+            echo "::error::The pod was not built, so this run verified nothing."
+            exit 1
+          fi
+          grep -oE 'CompileC [^ ]*(NetSignal|netsignal)[^ ]*\.o' /tmp/xcodebuild.log | sort -u | head
