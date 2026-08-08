@@ -1,10 +1,11 @@
 name: Native
 
-# Compiles the Kotlin, ObjC++ and Swift. The existing CI runs typecheck, lint,
-# tests and the bob build — all of which pass whether or not the native code
-# would build at all. A sibling package in this account shipped five releases
-# with an Android module that was never linked and iOS methods that JavaScript
-# could not call, because nothing ever compiled them.
+# Compiles the Kotlin. The existing CI runs typecheck, lint, tests and the bob
+# build — all of which pass whether or not the native code would build at all,
+# and all of which were green while the module did not compile.
+#
+# Android only, because the package is Android only: there is no ios/ directory
+# and no podspec, which the README states up front.
 
 on:
   push:
@@ -50,12 +51,18 @@ jobs:
           npm install
           npm install ../lib
 
+      # pipefail is not optional here: without it the exit status is tee's, and
+      # the first version of this job reported success over a Kotlin compile
+      # that had FAILED.
       - name: Assemble
         working-directory: HostApp/android
-        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace | tee /tmp/gradle.log
+        run: |
+          set -o pipefail
+          ./gradlew :app:assembleDebug --no-daemon --stacktrace | tee /tmp/gradle.log
 
       # A host app that builds without including this library proves nothing.
       - name: Assert the library was actually compiled
+        if: always()
         run: |
           if ! grep -qE 'Task :netsignal:compile.*Kotlin' /tmp/gradle.log; then
             echo "::error::The host app built without compiling this library."
@@ -64,60 +71,11 @@ jobs:
             grep -oE '> Task :[^ ]+' /tmp/gradle.log | sort -u
             exit 1
           fi
-          grep -oE '> Task :netsignal:[^ ]+' /tmp/gradle.log | sort -u
-
-  ios:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          path: lib
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - name: Generate host app
-        run: |
-          npx --yes @react-native-community/cli@latest init HostApp \
-            --version 0.86.2 --skip-install --skip-git-init --install-pods false
-
-      - name: Build the library
-        working-directory: lib
-        run: npm install --no-audit --no-fund
-
-      - name: Link the library
-        working-directory: HostApp
-        run: |
-          npm install
-          npm install ../lib
-
-      - name: Pod install
-        working-directory: HostApp/ios
-        run: RCT_NEW_ARCH_ENABLED=1 pod install
-
-      # Raw output, not xcpretty: xcpretty discards compiler diagnostics it does
-      # not recognise, which is useless for the one job whose purpose is to
-      # surface them.
-      - name: Build for simulator
-        working-directory: HostApp/ios
-        run: |
-          set -o pipefail
-          xcodebuild -workspace HostApp.xcworkspace -scheme HostApp \
-            -sdk iphonesimulator -configuration Debug \
-            -destination 'generic/platform=iOS Simulator' \
-            build CODE_SIGNING_ALLOWED=NO 2>&1 | tee /tmp/xcodebuild.log || {
-              echo "::group::Compiler diagnostics"
-              grep -E '(error|warning):' /tmp/xcodebuild.log | sort -u || true
-              echo "::endgroup::"
-              exit 1
-            }
-
-      - name: Assert this library's sources were compiled
-        run: |
-          if ! grep -qiE 'CompileC .*(NetSignal|netsignal).*\.o' /tmp/xcodebuild.log; then
-            echo "::error::No source file from this library was compiled."
-            echo "::error::The pod was not built, so this run verified nothing."
+          if grep -qE 'Task :netsignal:[^ ]+ FAILED' /tmp/gradle.log; then
+            echo "::error::A task belonging to this library failed:"
+            grep -oE '> Task :netsignal:[^ ]+ FAILED' /tmp/gradle.log | sort -u
+            grep -E '^e: ' /tmp/gradle.log | head -40
             exit 1
           fi
-          grep -oE 'CompileC [^ ]*(NetSignal|netsignal)[^ ]*\.o' /tmp/xcodebuild.log | sort -u | head
+          grep -oE '> Task :netsignal:[^ ]+' /tmp/gradle.log | sort -u
+

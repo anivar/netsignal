@@ -7,6 +7,17 @@ buildscript {
 apply plugin: 'com.android.library'
 apply plugin: 'org.jetbrains.kotlin.android'
 
+// Runs codegen for this library. package.json's `codegenConfig` block names the
+// spec (NativeNetSignal), and this plugin turns it into the NativeNetSignalSpec
+// abstract class that NetSignalTurboModule extends, then puts the generated
+// sources on the compile path.
+//
+// Without it the module does not compile at all: "Unresolved reference
+// 'NativeNetSignalSpec'", followed by every method reporting "overrides
+// nothing". The declared codegenConfig is not enough on its own — something has
+// to run it.
+apply plugin: 'com.facebook.react'
+
 android {
     namespace 'com.netsignal'
     compileSdkVersion safeExtGet('compileSdkVersion', 34)
@@ -14,6 +25,16 @@ android {
     defaultConfig {
         minSdkVersion safeExtGet('minSdkVersion', 24)
         targetSdkVersion safeExtGet('targetSdkVersion', 34)
+    }
+
+    // React Native 0.80+ and AGP 8 both require a JDK 17 toolchain.
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
     }
 
     sourceSets {
