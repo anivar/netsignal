@@ -30,7 +30,7 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - uses: android-actions/setup-android@v3
+      - uses: android-actions/setup-android@v4
 
       # The library module cannot build alone — it reads compileSdkVersion from
       # rootProject.ext — so it needs a host app around it.
