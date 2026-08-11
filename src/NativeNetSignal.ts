@@ -23,4 +23,9 @@ export interface Spec extends TurboModule {
   removeListeners(count: number): void;
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>("NetSignal");
+// `get`, not `getEnforcing`. This package is Android only, and `getEnforcing`
+// throws from module scope — so on iOS or web merely *importing* the package
+// crashes the app, before any `Platform.OS` check a caller might write. `get`
+// returns null there instead, and index.tsx raises an error naming the platform
+// only when a method is actually called.
+export default TurboModuleRegistry.get<Spec>("NetSignal");
